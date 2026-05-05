@@ -1,0 +1,41 @@
+### ==========================================
+### WATCHLIST ROUTES (/user-api)
+### Replace <USER_ID> and <STOCK_ID> with actuals
+### Login as TRADER first
+### ==========================================
+
+### Get user's watchlist
+GET http://localhost:5000/user-api/watchlist/<USER_ID>
+
+### Add stock to watchlist
+POST http://localhost:5000/user-api/watchlist/add
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>"
+}
+
+### Add another stock to watchlist
+POST http://localhost:5000/user-api/watchlist/add
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID_2>"
+}
+
+### --- ERROR: Add duplicate to watchlist ---
+POST http://localhost:5000/user-api/watchlist/add
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>"
+}
+
+### Remove stock from watchlist
+DELETE http://localhost:5000/user-api/watchlist/remove/<USER_ID>/<STOCK_ID>
+
+### Get watchlist again (verify removal)
+GET http://localhost:5000/user-api/watchlist/<USER_ID>

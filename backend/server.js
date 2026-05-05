@@ -3,12 +3,27 @@ import {connect} from 'mongoose'
 import {config} from 'dotenv'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import userApp from './APIs/userRoutes.js'
 import adminApp from './APIs/adminRoutes.js'
 import authApp from './APIs/authRoutes.js'
-
+import transactionApp from './APIs/transactionRoutes.js' 
+import stockApp from './APIs/stockRoutes.js'
 config()
 const app=exp()
+
+//create HTTP server and attach Socket.io
+const server = createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true
+  }
+})
+
+//make io accessible in routes via req.app.get('io')
+app.set('io', io)
 
 app.use(cookieParser())
 
@@ -24,6 +39,23 @@ app.use(exp.json())
 app.use("/user-api",userApp)
 app.use("/admin-api",adminApp)
 app.use("/auth",authApp)
+app.use("/trans",transactionApp)
+app.use("/stock-api",stockApp);
+
+//Socket.io connection handling
+io.on('connection', (socket) => {
+    console.log('Client connected:', socket.id)
+
+    //allow users to join their personal room for targeted alerts
+    socket.on('joinRoom', (userId) => {
+        socket.join(userId)
+        console.log(`User ${userId} joined their room`)
+    })
+
+    socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id)
+    })
+})
 
 //connect to DB
 const connectDB=async()=>{
@@ -32,7 +64,7 @@ const connectDB=async()=>{
         console.log("DB connected")
         //assign port
         const port=process.env.port || 5000
-        app.listen(port,()=> console.log(`Server listening on ${port}....`))
+        server.listen(port,()=> console.log(`Server listening on ${port}....`))
     }
     catch(err){
         console.log("Error in connecting to database:",err)

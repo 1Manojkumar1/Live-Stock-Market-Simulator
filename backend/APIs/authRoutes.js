@@ -10,7 +10,7 @@ const {sign}=jwt
 authApp.use(exp.json())
 
 
-authApp.post('/users',async(req,res,next)=>{
+authApp.post('/register',async(req,res,next)=>{
     try{
         let allowedRoles=['ADMIN','TRADER']
         const {name,email,password,role}=req.body
@@ -40,13 +40,40 @@ authApp.post('/login',async(req,res,next)=>{
         if(!user){
             return res.status(400).json({message:'User not found'})
         }
+
+        //check if user is blocked
+        if(user.status === 'blocked'){
+            return res.status(403).json({message:'Your account has been blocked. Contact admin.'})
+        }
+
         const isPasswordValid=await compare(password,user.password)
         if(!isPasswordValid){
             return res.status(400).json({message:'Invalid password'})
         }
-        const token=sign({email:user.email,role:user.role},process.env.SECRET_KEY)
+
+        //include userId in token so it can be extracted in protected routes
+        const token=sign(
+            {userId:user._id, email:user.email, role:user.role},
+            process.env.SECRET_KEY,
+            {expiresIn:'24h'}
+        )
         res.cookie('token',token,{httpOnly:true})
-        return res.status(200).json({message:'Login successful'})
+
+        //update login tracking
+        user.isLoggedIn = true
+        user.lastLogin = new Date()
+        await user.save()
+
+        return res.status(200).json({
+            message:'Login successful',
+            user:{
+                id:user._id,
+                name:user.name,
+                email:user.email,
+                role:user.role,
+                balance:user.balance
+            }
+        })
     }
     catch(err){
         console.log("Login error:", err.message)
@@ -55,8 +82,19 @@ authApp.post('/login',async(req,res,next)=>{
 })
 
 //route for logout
-authApp.post('/logout',async(req,res,next)=>{
+authApp.get('/logout',async(req,res,next)=>{
     try{
+        //try to update isLoggedIn if token is valid
+        try{
+            const token = req.cookies?.token
+            if(token){
+                const decoded = jwt.verify(token, process.env.SECRET_KEY)
+                await userModel.findByIdAndUpdate(decoded.userId, {isLoggedIn: false})
+            }
+        }catch(e){
+            //token might be expired/invalid, still allow logout
+        }
+
         res.clearCookie('token')
         return res.status(200).json({message:'Logout successful'})
     }

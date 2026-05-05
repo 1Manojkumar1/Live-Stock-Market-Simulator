@@ -1,0 +1,95 @@
+### ==========================================
+### TRADING ROUTES (/user-api)
+### Replace <USER_ID> and <STOCK_ID> with actuals
+### Login as TRADER first
+### ==========================================
+
+### Buy stock
+POST http://localhost:5000/user-api/buy
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 5
+}
+
+### Buy more of the same stock (tests avgBuyPrice recalculation)
+POST http://localhost:5000/user-api/buy
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 3
+}
+
+### Buy a different stock
+POST http://localhost:5000/user-api/buy
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID_2>",
+    "quantity": 2
+}
+
+### Sell stock (partial)
+POST http://localhost:5000/user-api/sell
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 2
+}
+
+### Sell stock (all remaining — should remove from portfolio)
+POST http://localhost:5000/user-api/sell
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 6
+}
+
+### --- ERROR CASES ---
+
+### Buy with insufficient balance
+POST http://localhost:5000/user-api/buy
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 99999
+}
+
+### Sell more than owned
+POST http://localhost:5000/user-api/sell
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "quantity": 99999
+}
+
+### Buy with invalid stock ID
+POST http://localhost:5000/user-api/buy
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "000000000000000000000000",
+    "quantity": 1
+}
+
+### --- PORTFOLIO & HISTORY ---
+
+### Get user portfolio (with P/L)
+GET http://localhost:5000/user-api/portfolio/<USER_ID>
+
+### Get user transaction history
+GET http://localhost:5000/user-api/transactions/<USER_ID>

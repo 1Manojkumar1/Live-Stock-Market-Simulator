@@ -1,0 +1,88 @@
+### Get all stocks
+GET http://localhost:5000/stock-api/stocks
+
+### Search stocks by name
+GET http://localhost:5000/stock-api/stocks?search=reliance
+
+### Filter stocks by category
+GET http://localhost:5000/stock-api/stocks?category=Tech
+
+### Filter stocks by price range
+GET http://localhost:5000/stock-api/stocks?minPrice=100&maxPrice=1000
+
+### Combined search + filter
+GET http://localhost:5000/stock-api/stocks?search=tata&minPrice=500&maxPrice=5000
+
+### Get single stock detail
+GET http://localhost:5000/stock-api/stocks/<STOCK_ID>
+
+### Get stock price history
+GET http://localhost:5000/stock-api/stocks/<STOCK_ID>/history
+
+### Add stock
+POST http://localhost:5000/stock-api/addStock
+Content-Type: application/json
+
+{
+    "stockid": 1,
+    "stockName": "Reliance Industries",
+    "symbol": "RELIANCE",
+    "price": 2450,
+    "category": "Energy"
+}
+
+### Add another stock
+POST http://localhost:5000/stock-api/addStock
+Content-Type: application/json
+
+{
+    "stockid": 2,
+    "stockName": "Tata Consultancy Services",
+    "symbol": "TCS",
+    "price": 3500,
+    "category": "Tech"
+}
+
+### Add another stock
+POST http://localhost:5000/stock-api/addStock
+Content-Type: application/json
+
+{
+    "stockid": 3,
+    "stockName": "Infosys",
+    "symbol": "INFY",
+    "price": 1450,
+    "category": "Tech"
+}
+
+### Add another stock
+POST http://localhost:5000/stock-api/addStock
+Content-Type: application/json
+
+{
+    "stockid": 4,
+    "stockName": "HDFC Bank",
+    "symbol": "HDFCBANK",
+    "price": 1650,
+    "category": "Finance"
+}
+
+### Add another stock
+POST http://localhost:5000/stock-api/addStock
+Content-Type: application/json
+
+{
+    "stockid": 5,
+    "stockName": "Wipro",
+    "symbol": "WIPRO",
+    "price": 420,
+    "category": "Tech"
+}
+
+### Update stock price (Admin only)
+PUT http://localhost:5000/stock-api/updateStock/<STOCK_ID>
+Content-Type: application/json
+
+{
+    "price": 2550
+}

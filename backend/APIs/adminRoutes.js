@@ -1,17 +1,20 @@
 import exp from 'express';
 import { userModel } from '../models/userModel.js';
+import { transactionModel } from '../models/transaction.js';
+import { stockModel } from '../models/stock.js';
 import { Settings } from '../models/Settings.js';
+import { verifyToken } from '../middlewares/verifyToken.js';
 
 const adminApp = exp.Router();
 
-adminApp.get('/dashboard', async (req, res) => {
+adminApp.get('/dashboard',verifyToken('ADMIN'),async (req, res) => {
   try {
-    const totalUsers = await User.countDocuments();
-    const loggedInUsers = await User.countDocuments({ isLoggedIn: true });
-    const loggedOutUsers = await User.countDocuments({ isLoggedIn: false });
+    const totalUsers = await userModel.countDocuments();
+    const loggedInUsers = await userModel.countDocuments({ isLoggedIn: true });
+    const loggedOutUsers = await userModel.countDocuments({ isLoggedIn: false });
 
-    const users = await User.find()
-      .select("name email isLoggedIn lastLogin");
+    const users = await userModel.find()
+      .select("name email isLoggedIn lastLogin status balance");
     res.json({
       message: "Admin Dashboard",
       stats: {
@@ -22,15 +25,16 @@ adminApp.get('/dashboard', async (req, res) => {
       users
     });
 
-  } catch (error) {
+  } catch (error) { 
+    console.error(error); 
     res.status(500).json({ message: "Server Error", error });
   }
 });
 
 //list of all users
-adminApp.get('/users', async (req, res) => {
+adminApp.get('/users',verifyToken('ADMIN'),async (req, res) => {
   try {
-    const users = await User.find().select("-password");
+    const users = await userModel.find().select("-password");
     res.json({
       message: "All Users",
       count: users.length,
@@ -42,7 +46,7 @@ adminApp.get('/users', async (req, res) => {
 });
 
 //admin Settings
-adminApp.get('/settings', async (req, res) => {
+adminApp.get('/settings',verifyToken('ADMIN'),async (req, res) => {
   try {
     let settings = await Settings.findOne();
 
@@ -61,7 +65,8 @@ adminApp.get('/settings', async (req, res) => {
   }
 });
 
-adminApp.put('/settings', async (req, res) => {
+//update global system settings (only admin can change app behavior like trading on/off, fees, etc.)
+adminApp.put('/settings',verifyToken('ADMIN'),async (req, res) => {
   try {
     const updated = await Settings.findOneAndUpdate( {},req.body,{ new: true, upsert: true });
     res.json({
@@ -73,38 +78,55 @@ adminApp.put('/settings', async (req, res) => {
   }
 });
 
-
-adminApp.delete('/users/:id', async (req, res) => {
+//view all transactions (admin)
+adminApp.get('/transactions', verifyToken('ADMIN'), async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    await user.deleteOne();
-    res.json({ message: "User deleted successfully" });
+    const transactions = await transactionModel
+      .find()
+      .populate('userId', 'name email')
+      .populate('stockId', 'stockName symbol')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      message: "All transactions fetched successfully",
+      count: transactions.length,
+      transactions
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error deleting user", error });
+    console.error(error);
+    res.status(500).json({ message: "Error fetching transactions", error });
   }
 });
 
-adminApp.patch('/users/:id/block', async (req, res) => {
+//block a user account (used when suspicious or unusual activity is detected)
+adminApp.patch('/users/:id/block', verifyToken('ADMIN'), async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await userModel.findById(req.params.id); 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     user.status = "blocked";
     await user.save();
     res.json({ message: "User blocked successfully" });
-  } catch (error) {
+  } catch (error) { 
+    console.error(error); 
     res.status(500).json({ message: "Error blocking user", error });
   }
 });
 
-adminApp.patch('/users/:id/unblock', async (req, res) => {
+
+//unblock a user account (admin re-enables access after review)
+adminApp.patch('/users/:id/unblock', verifyToken('ADMIN'), async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await userModel.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
     user.status = "active";
     await user.save();
     res.json({ message: "User unblocked successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error unblocking user", error });
   }
 });

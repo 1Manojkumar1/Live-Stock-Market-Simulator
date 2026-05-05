@@ -1,0 +1,62 @@
+### ==========================================
+### ALERT ROUTES (/user-api)
+### Replace <USER_ID> and <STOCK_ID> with actuals
+### Login as TRADER first
+### ==========================================
+
+### Get user's alerts (active + triggered)
+GET http://localhost:5000/user-api/alerts/<USER_ID>
+
+### Create alert — notify when stock goes ABOVE target
+POST http://localhost:5000/user-api/alerts
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "targetPrice": 2600,
+    "direction": "ABOVE"
+}
+
+### Create alert — notify when stock goes BELOW target
+POST http://localhost:5000/user-api/alerts
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "targetPrice": 2400,
+    "direction": "BELOW"
+}
+
+### --- ERROR: Duplicate alert ---
+POST http://localhost:5000/user-api/alerts
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "targetPrice": 2600,
+    "direction": "ABOVE"
+}
+
+### --- ERROR: Invalid direction ---
+POST http://localhost:5000/user-api/alerts
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "stockId": "<STOCK_ID>",
+    "targetPrice": 3000,
+    "direction": "SIDEWAYS"
+}
+
+### Delete an alert (replace <ALERT_ID>)
+DELETE http://localhost:5000/user-api/alerts/<ALERT_ID>
+
+### --- TRIGGER TEST ---
+### Step 1: Create an ABOVE alert for price 2600
+### Step 2: Login as ADMIN (use req-auth.http)
+### Step 3: Update stock price to 2650 (use req-stock.http)
+### Step 4: Check alerts again — it should show as triggered
+GET http://localhost:5000/user-api/alerts/<USER_ID>

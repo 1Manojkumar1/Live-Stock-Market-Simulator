@@ -1,0 +1,49 @@
+### ================================
+### ADMIN ROUTES (/admin-api)
+### Login as ADMIN first
+### ================================
+
+### Get admin dashboard (stats + user list)
+GET http://localhost:5000/admin-api/dashboard
+
+### Get all users
+GET http://localhost:5000/admin-api/users
+
+### Get system settings
+GET http://localhost:5000/admin-api/settings
+
+### Update system settings — disable trading
+PUT http://localhost:5000/admin-api/settings
+Content-Type: application/json
+
+{
+    "tradingEnabled": false
+}
+
+### Update system settings — enable trading
+PUT http://localhost:5000/admin-api/settings
+Content-Type: application/json
+
+{
+    "tradingEnabled": true,
+    "maintenanceMode": false,
+    "defaultBalance": 10000,
+    "transactionFeePercent": 1
+}
+
+### Update system settings — maintenance mode ON
+PUT http://localhost:5000/admin-api/settings
+Content-Type: application/json
+
+{
+    "maintenanceMode": true
+}
+
+### View all transactions (system-wide)
+GET http://localhost:5000/admin-api/transactions
+
+### Block a user (replace <USER_ID>)
+PATCH http://localhost:5000/admin-api/users/<USER_ID>/block
+
+### Unblock a user
+PATCH http://localhost:5000/admin-api/users/<USER_ID>/unblock

@@ -1,0 +1,35 @@
+### Get user profile
+GET http://localhost:5000/user-api/users/<USER_ID>
+
+### Get user balance
+GET http://localhost:5000/user-api/users/balance/<USER_ID>
+
+### Update user profile
+PUT http://localhost:5000/user-api/users/<USER_ID>
+Content-Type: application/json
+
+{
+    "name": "Vinya Updated",
+    "email": "vinya@gmail.com"
+}
+
+### Change password
+PUT http://localhost:5000/user-api/users/change-password/<USER_ID>
+Content-Type: application/json
+
+{
+    "currentPassword": "vinya123",
+    "newPassword": "vinya456"
+}
+
+### Add funds to wallet
+POST http://localhost:5000/user-api/add-funds
+Content-Type: application/json
+
+{
+    "userId": "<USER_ID>",
+    "amount": 5000
+}
+
+### Get trader dashboard
+GET http://localhost:5000/user-api/dashboard/<USER_ID>
