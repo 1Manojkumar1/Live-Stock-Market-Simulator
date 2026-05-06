@@ -10,6 +10,7 @@ import adminApp from './APIs/adminRoutes.js'
 import authApp from './APIs/authRoutes.js'
 import transactionApp from './APIs/transactionRoutes.js' 
 import stockApp from './APIs/stockRoutes.js'
+import { startPriceSync } from './services/marketSync.js'
 config()
 const app=exp()
 
@@ -62,6 +63,9 @@ const connectDB=async()=>{
     try{
         await connect(process.env.DB_URL)
         console.log("DB connected")
+        //start real-time price sync
+        const io = app.get('io');
+        startPriceSync(io);
         //assign port
         const port=process.env.port || 5000
         server.listen(port,()=> console.log(`Server listening on ${port}....`))

@@ -6,10 +6,22 @@ export const SocketContext = createContext();
 export const SocketProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
 
-    // DESCRIPTION: 
-    // This context initializes the Socket.io connection to the backend.
-    // It listens for 'stockPriceUpdate' and 'alertTriggered' events 
-    // to provide real-time updates to any component in the app.
+    useEffect(() => {
+        // Connect to the backend server
+        const newSocket = io('http://localhost:5000', {
+            withCredentials: true,
+            transports: ['websocket']
+        });
+
+        setSocket(newSocket);
+
+        newSocket.on('connect', () => {
+            console.log('Connected to Live Stock Server:', newSocket.id);
+        });
+
+        // Cleanup on unmount
+        return () => newSocket.close();
+    }, []);
 
     return (
         <SocketContext.Provider value={socket}>

@@ -179,30 +179,27 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
   }
 });
 
-import express from 'express';
-import finnhub from 'finnhub';
-import { config } from 'dotenv';
+import fetch from 'node-fetch';
 
-config();
-
-const stockApp = express.Router();
-
-// setup API key
-const api_key = finnhub.ApiClient.instance.authentications['api_key'];
-api_key.apiKey = process.env.FINNHUB_API_KEY;
-
-const finnhubClient = new finnhub.DefaultApi();
-
-// route: GET stock price
-stockApp.get('/price/:symbol', (req, res) => {
-  const { symbol } = req.params;
-
-  finnhubClient.quote(symbol, (error, data) => {
-    if (error) {
-      return res.status(500).json({ message: "Error fetching stock data", error });
+// Helper to fetch a live price from Finnhub
+const getFinnhubQuote = async (symbol) => {
+    const apiKey = process.env.FINNHUB_API_KEY;
+    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Finnhub request failed with status ${response.status}`);
     }
-    res.json(data);
-  });
+    return await response.json(); // { c: current, h: high, l: low, ... }
+};
+
+// route: GET real-time external price for a symbol (optional check)
+stockApp.get('/external-price/:symbol', async (req, res) => {
+    try {
+        const data = await getFinnhubQuote(req.params.symbol);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching external data", error: err.message });
+    }
 });
 
 export default stockApp;

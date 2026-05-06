@@ -91,3 +91,8 @@ Content-Type: application/json
 ### Get Apple stock price
 GET http://localhost:5000/stock-api/price/AAPL
 Content-Type: application/json
+
+
+
+### Test Real-Time Finnhub API
+GET http://localhost:5000/stock-api/external-price/AAPL
