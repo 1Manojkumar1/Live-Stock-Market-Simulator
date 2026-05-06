@@ -3,9 +3,9 @@ POST http://localhost:5000/auth/register
 Content-Type: application/json
 
 {
-    "name": "Vinya",
-    "email": "vinya@gmail.com",
-    "password": "vinya123",
+    "name": "kiranreddy",
+    "email": "kiran@gmail.com",
+    "password": "kiran",
     "role": "TRADER"
 }
 
@@ -15,7 +15,7 @@ Content-Type: application/json
 
 {
     "email": "vinya@gmail.com",
-    "password": "vinya123"
+    "password": "vinya"
 }
 
 ### Login as ADMIN

@@ -1,7 +1,2 @@
-### ==========================================
-### LEADERBOARD (/user-api)
-### No auth required
-### ==========================================
-
 ### Get top 10 traders ranked by profit
 GET http://localhost:5000/user-api/leaderboard

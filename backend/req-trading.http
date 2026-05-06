@@ -1,16 +1,15 @@
-### ==========================================
-### TRADING ROUTES (/user-api)
-### Replace <USER_ID> and <STOCK_ID> with actuals
+
+
 ### Login as TRADER first
-### ==========================================
+
 
 ### Buy stock
 POST http://localhost:5000/user-api/buy
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2b9dc744851abd1d641",
     "quantity": 5
 }
 
@@ -19,8 +18,8 @@ POST http://localhost:5000/user-api/buy
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2b9dc744851abd1d641",
     "quantity": 3
 }
 
@@ -29,8 +28,8 @@ POST http://localhost:5000/user-api/buy
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID_2>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2bddc744851abd1d643",
     "quantity": 2
 }
 
@@ -39,8 +38,8 @@ POST http://localhost:5000/user-api/sell
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2bddc744851abd1d643",
     "quantity": 2
 }
 
@@ -49,8 +48,8 @@ POST http://localhost:5000/user-api/sell
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2bddc744851abd1d643",
     "quantity": 6
 }
 
@@ -61,8 +60,8 @@ POST http://localhost:5000/user-api/buy
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2bddc744851abd1d643",
     "quantity": 99999
 }
 
@@ -71,8 +70,8 @@ POST http://localhost:5000/user-api/sell
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
-    "stockId": "<STOCK_ID>",
+    "userId": "69fac420dc744851abd1d655",
+    "stockId": "69fac2bddc744851abd1d643",
     "quantity": 99999
 }
 
@@ -81,7 +80,7 @@ POST http://localhost:5000/user-api/buy
 Content-Type: application/json
 
 {
-    "userId": "<USER_ID>",
+    "userId": "69fac420dc744851abd1d655",
     "stockId": "000000000000000000000000",
     "quantity": 1
 }
@@ -89,7 +88,7 @@ Content-Type: application/json
 ### --- PORTFOLIO & HISTORY ---
 
 ### Get user portfolio (with P/L)
-GET http://localhost:5000/user-api/portfolio/<USER_ID>
+GET http://localhost:5000/user-api/portfolio/69fac420dc744851abd1d655
 
 ### Get user transaction history
-GET http://localhost:5000/user-api/transactions/<USER_ID>
+GET http://localhost:5000/user-api/transactions/69fac420dc744851abd1d655

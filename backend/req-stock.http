@@ -14,10 +14,10 @@ GET http://localhost:5000/stock-api/stocks?minPrice=100&maxPrice=1000
 GET http://localhost:5000/stock-api/stocks?search=tata&minPrice=500&maxPrice=5000
 
 ### Get single stock detail
-GET http://localhost:5000/stock-api/stocks/<STOCK_ID>
+GET http://localhost:5000/stock-api/stocks/69f97cfb83274caa64ef30cf
 
 ### Get stock price history
-GET http://localhost:5000/stock-api/stocks/<STOCK_ID>/history
+GET http://localhost:5000/stock-api/stocks/69f97cfb83274caa64ef30cf/history
 
 ### Add stock
 POST http://localhost:5000/stock-api/addStock
@@ -80,9 +80,14 @@ Content-Type: application/json
 }
 
 ### Update stock price (Admin only)
-PUT http://localhost:5000/stock-api/updateStock/<STOCK_ID>
+PUT http://localhost:5000/stock-api/updateStock/69f97cfb83274caa64ef30cf
 Content-Type: application/json
 
 {
     "price": 2550
 }
+
+
+### Get Apple stock price
+GET http://localhost:5000/stock-api/price/AAPL
+Content-Type: application/json

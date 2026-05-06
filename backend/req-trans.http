@@ -1,7 +1,3 @@
-### ==========================================
-### TRANSACTION ROUTES (/trans)
-### Login as ADMIN first
-### ==========================================
 
 ### Get all transactions (admin view)
 GET http://localhost:5000/trans/transactions

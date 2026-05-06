@@ -183,9 +183,9 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
             portfolio: Array.isArray(portfolio) ? portfolio[0] : portfolio
         });
 
-    } catch (error) {
+    }catch (error) {
         await session.abortTransaction();
-        console.error("Buy error:", error);
+        console.error(error);
         res.status(500).json({ message: "Error buying stock", error: error.message });
     } finally {
         session.endSession();

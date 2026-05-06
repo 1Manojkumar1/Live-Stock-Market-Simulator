@@ -1,7 +1,4 @@
-### ================================
-### ADMIN ROUTES (/admin-api)
-### Login as ADMIN first
-### ================================
+### ADMIN ROUTES
 
 ### Get admin dashboard (stats + user list)
 GET http://localhost:5000/admin-api/dashboard
@@ -17,7 +14,7 @@ PUT http://localhost:5000/admin-api/settings
 Content-Type: application/json
 
 {
-    "tradingEnabled": false
+    "tradingEnabled": true
 }
 
 ### Update system settings — enable trading
@@ -43,7 +40,7 @@ Content-Type: application/json
 GET http://localhost:5000/admin-api/transactions
 
 ### Block a user (replace <USER_ID>)
-PATCH http://localhost:5000/admin-api/users/<USER_ID>/block
+PATCH http://localhost:5000/admin-api/users/69f8a710341e20906c127433/block
 
 ### Unblock a user
-PATCH http://localhost:5000/admin-api/users/<USER_ID>/unblock
+PATCH http://localhost:5000/admin-api/users/69f8a710341e20906c127433/unblock

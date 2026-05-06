@@ -19,7 +19,8 @@ const alertSchema = new Schema(
     },
     direction: {
       type: String,
-      enum: ["ABOVE", "BELOW"],
+      enum: ["ABOVE", "BELOW"], 
+      // default:"ABOVE",
       required: [true, "Direction (ABOVE/BELOW) is required"],
     },
     isTriggered: {

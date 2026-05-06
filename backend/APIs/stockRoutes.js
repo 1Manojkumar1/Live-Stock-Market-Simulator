@@ -179,4 +179,30 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
   }
 });
 
+import express from 'express';
+import finnhub from 'finnhub';
+import { config } from 'dotenv';
+
+config();
+
+const stockApp = express.Router();
+
+// setup API key
+const api_key = finnhub.ApiClient.instance.authentications['api_key'];
+api_key.apiKey = process.env.FINNHUB_API_KEY;
+
+const finnhubClient = new finnhub.DefaultApi();
+
+// route: GET stock price
+stockApp.get('/price/:symbol', (req, res) => {
+  const { symbol } = req.params;
+
+  finnhubClient.quote(symbol, (error, data) => {
+    if (error) {
+      return res.status(500).json({ message: "Error fetching stock data", error });
+    }
+    res.json(data);
+  });
+});
+
 export default stockApp;

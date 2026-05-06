@@ -2,41 +2,41 @@ import { Schema, model } from "mongoose";
 import mongoose from "mongoose";
 const userSchema = new Schema(
   {
-    name: {
+    name:{
       type: String,
       required: [true, "NAME IS REQUIRED"],
     },
-    email: {
+    email:{
       type: String,
       unique: true,
       required: [true, "EMAIL IS REQUIRED"],
     },
-    password: {
+    password:{
       type: String,
       required: [true, "PASSWORD IS REQUIRED"],
     },
-    role: {
+    role:{
       type: String,
       enum: ["ADMIN", "TRADER"],
       default: "TRADER",
     },
-    balance: {
+    balance:{
       type: Number,
       default: 10000,
     },
-    status: {
+    status:{
       type: String,
       enum: ["active", "blocked"],
       default: "active",
     },
-    isLoggedIn: {
+    isLoggedIn:{
       type: Boolean,
       default: false,
     },
-    lastLogin: {
+    lastLogin:{
       type: Date,
     },
-    watchlist: [
+    watchlist:[
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Stock",

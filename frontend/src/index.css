@@ -1,1 +1,27 @@
-@import "tailwindcss";
+/* 
+  DESCRIPTION: 
+  This is your global design system. 
+  It should contain:
+  - Reset styles.
+  - Harmony colors (Dark mode themes, primary stock colors like Green/Red).
+  - Modern Typography (Inter/Roboto).
+  - Utility classes for spacing and glassmorphism cards.
+*/
+
+:root {
+  --primary: #2563eb;
+  --success: #10b981;
+  --danger: #ef4444;
+  --bg-dark: #0f172a;
+  --card-dark: #1e293b;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-dark);
+  color: white;
+}
+
+.stock-up { color: var(--success); }
+.stock-down { color: var(--danger); }
