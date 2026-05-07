@@ -1,4 +1,3 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
@@ -14,7 +13,8 @@ const Layout = () => {
                         DESCRIPTION: 
                         This is the main wrapper for all authenticated pages.
                         It renders the Navbar at the top and Sidebar on the left.
-                        The <Outlet /> renders the specific page (Dashboard, Market, etc.).
+                        The <Outlet /> renders the specific page (Dashboard, Market, etc.)
+                        .
                     */}
                     <Outlet />
                 </main>
