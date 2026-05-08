@@ -7,12 +7,36 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // DESCRIPTION: 
-    // This context manages global user state (name, email, role, balance).
-    // It provides login() and logout() functions and handles token persistence.
+    useEffect(() => {
+        const checkLoggedIn = async () => {
+            try {
+                const res = await api.get('/auth/me');
+                setUser(res.data.user);
+            } catch (err) {
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkLoggedIn();
+    }, []);
+
+    const login = (userData) => {
+        setUser(userData);
+    };
+
+    const logout = async () => {
+        try {
+            await api.get('/auth/logout');
+        } catch (err) {
+            console.error('Logout error:', err);
+        }
+        setUser(null);
+    };
 
     return (
-        <AuthContext.Provider value={{ user, setUser, loading }}>
+        <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
             {children}
         </AuthContext.Provider>
     );

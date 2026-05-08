@@ -4,18 +4,11 @@ import Sidebar from './Sidebar';
 
 const Layout = () => {
     return (
-        <div className="app-layout">
+        <div className="min-h-screen flex flex-col bg-gray-50">
             <Navbar />
-            <div className="main-content">
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
-                <main className="page-view">
-                    {/* 
-                        DESCRIPTION: 
-                        This is the main wrapper for all authenticated pages.
-                        It renders the Navbar at the top and Sidebar on the left.
-                        The <Outlet /> renders the specific page (Dashboard, Market, etc.)
-                        .
-                    */}
+                <main className="flex-1 overflow-y-auto w-full">
                     <Outlet />
                 </main>
             </div>

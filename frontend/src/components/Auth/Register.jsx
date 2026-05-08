@@ -8,12 +8,12 @@ function Register() {
     name: "",
     email: "",
     password: "",
-    role:""
+
   });
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-  }; 
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -30,7 +30,10 @@ function Register() {
         onSubmit={handleSubmit}
         className="bg-white p-8 rounded-2xl shadow-lg w-96"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+        <div className="mx-auto w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl font-bold text-2xl mb-4">
+            C
+        </div>
+        <h2 className="text-2xl font-bold mb-6 text-center">Join Cruzz</h2>
 
         <input
           type="text"

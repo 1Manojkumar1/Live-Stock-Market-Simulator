@@ -17,9 +17,13 @@ function Login() {
   
 
   return (
-    <div>
-      <form action="get">
-        <div className="w-30 p-5 m-auto border border-gray-300 rounded-md mt-10">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <form action="get" className="bg-white p-8 rounded-2xl shadow-lg w-96">
+        <div className="mx-auto w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl font-bold text-2xl mb-4">
+            C
+        </div>
+        <h2 className="text-2xl font-bold mb-6 text-center">Sign in to Cruzz</h2>
+        <div className="flex flex-col gap-2">
           <label htmlFor="email">Email</label>
           <input type="email" name="email" id="email" placeholder="Enter your email" value={form.email} onChange={(e)=>setForm({...form,email:e.target.value})} />
           <label htmlFor="password">Password</label>

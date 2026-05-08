@@ -1,5 +1,4 @@
 import exp from 'express';
-import mongoose from 'mongoose';
 import { userModel } from '../models/userModel.js';
 import { stockModel } from '../models/stock.js';
 import { portfolioModel } from '../models/portfolio.js';
@@ -91,46 +90,33 @@ userApp.put('/users/change-password/:id', verifyToken('TRADER'), async(req, res)
 
 //buy stock
 userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
         const { userId, stockId, quantity } = req.body;
 
-        //validate input
         if (!userId || !stockId || !quantity || quantity <= 0) {
             return res.status(400).json({ message: "userId, stockId, and a positive quantity are required" });
         }
 
-        //check if trading is enabled
-        const settings = await Settings.findOne().session(session);
+        const settings = await Settings.findOne();
         if (settings && !settings.tradingEnabled) {
-            await session.abortTransaction();
             return res.status(403).json({ message: "Trading is currently disabled by admin" });
         }
         if (settings && settings.maintenanceMode) {
-            await session.abortTransaction();
             return res.status(503).json({ message: "System is under maintenance. Try again later." });
         }
 
-        //find the stock
-        const stock = await stockModel.findById(stockId).session(session);
+        const stock = await stockModel.findById(stockId);
         if (!stock) {
-            await session.abortTransaction();
             return res.status(404).json({ message: "Stock not found" });
         }
 
-        //calculate total cost
         const totalCost = stock.price * quantity;
 
-        //find the user and check balance
-        const user = await userModel.findById(userId).session(session);
+        const user = await userModel.findById(userId);
         if (!user) {
-            await session.abortTransaction();
             return res.status(404).json({ message: "User not found" });
         }
         if (user.balance < totalCost) {
-            await session.abortTransaction();
             return res.status(400).json({
                 message: "Insufficient balance",
                 required: totalCost,
@@ -138,99 +124,75 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
             });
         }
 
-        //deduct balance
         user.balance -= totalCost;
-        await user.save({ session });
+        await user.save();
 
-        //update or create portfolio entry
-        let portfolio = await portfolioModel.findOne({ userId, stockId }).session(session);
+        let portfolio = await portfolioModel.findOne({ userId, stockId });
 
         if (portfolio) {
-            //recalculate weighted average buy price
             const totalOldValue = portfolio.avgBuyPrice * portfolio.quantity;
             const totalNewValue = stock.price * quantity;
             const newTotalQuantity = portfolio.quantity + quantity;
             portfolio.avgBuyPrice = (totalOldValue + totalNewValue) / newTotalQuantity;
             portfolio.quantity = newTotalQuantity;
-            await portfolio.save({ session });
+            await portfolio.save();
         } else {
-            //create new portfolio entry
-            portfolio = await portfolioModel.create([{
+            portfolio = await portfolioModel.create({
                 userId,
                 stockId,
                 quantity,
                 avgBuyPrice: stock.price
-            }], { session });
+            });
         }
 
-        //record the transaction
-        const transaction = await transactionModel.create([{
+        const transaction = await transactionModel.create({
             userId,
             stockId,
             type: "BUY",
             quantity,
             price: stock.price,
             totalAmount: totalCost
-        }], { session });
-
-        //commit all changes
-        await session.commitTransaction();
+        });
 
         res.status(201).json({
             message: "Stock purchased successfully",
-            transaction: transaction[0],
-            newBalance: user.balance,
-            portfolio: Array.isArray(portfolio) ? portfolio[0] : portfolio
+            transaction,
+            newBalance: user.balance
         });
 
-    }catch (error) {
-        await session.abortTransaction();
+    } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error buying stock", error: error.message });
-    } finally {
-        session.endSession();
     }
 });
 
 //sell stock
 userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
         const { userId, stockId, quantity } = req.body;
 
-        //validate input
         if (!userId || !stockId || !quantity || quantity <= 0) {
             return res.status(400).json({ message: "userId, stockId, and a positive quantity are required" });
         }
 
-        //check if trading is enabled
-        const settings = await Settings.findOne().session(session);
+        const settings = await Settings.findOne();
         if (settings && !settings.tradingEnabled) {
-            await session.abortTransaction();
             return res.status(403).json({ message: "Trading is currently disabled by admin" });
         }
         if (settings && settings.maintenanceMode) {
-            await session.abortTransaction();
             return res.status(503).json({ message: "System is under maintenance. Try again later." });
         }
 
-        //find the stock
-        const stock = await stockModel.findById(stockId).session(session);
+        const stock = await stockModel.findById(stockId);
         if (!stock) {
-            await session.abortTransaction();
             return res.status(404).json({ message: "Stock not found" });
         }
 
-        //check if user owns enough shares
-        const portfolio = await portfolioModel.findOne({ userId, stockId }).session(session);
+        const portfolio = await portfolioModel.findOne({ userId, stockId });
         if (!portfolio) {
-            await session.abortTransaction();
             return res.status(400).json({ message: "You don't own this stock" });
         }
         if (portfolio.quantity < quantity) {
-            await session.abortTransaction();
             return res.status(400).json({
                 message: "Insufficient shares",
                 requested: quantity,
@@ -238,50 +200,38 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
             });
         }
 
-        //calculate sale amount
         const saleAmount = stock.price * quantity;
 
-        //add money to user balance
-        const user = await userModel.findById(userId).session(session);
+        const user = await userModel.findById(userId);
         user.balance += saleAmount;
-        await user.save({ session });
+        await user.save();
 
-        //update or remove portfolio entry
         if (portfolio.quantity === quantity) {
-            //selling all shares — remove portfolio entry
-            await portfolioModel.deleteOne({ _id: portfolio._id }).session(session);
+            await portfolioModel.deleteOne({ _id: portfolio._id });
         } else {
-            //selling partial — reduce quantity, avgBuyPrice stays the same
             portfolio.quantity -= quantity;
-            await portfolio.save({ session });
+            await portfolio.save();
         }
 
-        //record the transaction
-        const transaction = await transactionModel.create([{
+        const transaction = await transactionModel.create({
             userId,
             stockId,
             type: "SELL",
             quantity,
             price: stock.price,
             totalAmount: saleAmount
-        }], { session });
-
-        //commit all changes
-        await session.commitTransaction();
+        });
 
         res.status(200).json({
             message: "Stock sold successfully",
-            transaction: transaction[0],
+            transaction,
             newBalance: user.balance,
             soldAmount: saleAmount
         });
 
     } catch (error) {
-        await session.abortTransaction();
         console.error("Sell error:", error);
         res.status(500).json({ message: "Error selling stock", error: error.message });
-    } finally {
-        session.endSession();
     }
 });
 
@@ -454,88 +404,39 @@ userApp.get('/dashboard/:userId', verifyToken('TRADER'), async(req, res) => {
     }
 });
 
-//get user's watchlist
+//get user's watchlist (stocks they own)
 userApp.get('/watchlist/:userId', verifyToken('TRADER'), async(req, res) => {
     try {
         const { userId } = req.params;
-        const user = await userModel.findById(userId)
-            .populate('watchlist', 'stockName symbol price priceChange category');
-
+        const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+
+        const portfolio = await portfolioModel
+            .find({ userId, quantity: { $gt: 0 } })
+            .populate('stockId', 'stockName symbol price priceChange category');
+
+        const watchlist = portfolio
+            .filter(p => p.stockId)
+            .map(p => ({
+                _id: p.stockId._id,
+                stockName: p.stockId.stockName,
+                symbol: p.stockId.symbol,
+                price: p.stockId.price,
+                priceChange: p.stockId.priceChange,
+                category: p.stockId.category,
+                quantity: p.quantity,
+                avgBuyPrice: p.avgBuyPrice
+            }));
 
         res.json({
             message: "Watchlist fetched successfully",
-            count: user.watchlist.length,
-            watchlist: user.watchlist
+            count: watchlist.length,
+            watchlist
         });
     } catch (error) {
         res.status(500).json({ message: "Error fetching watchlist", error: error.message });
-    }
-});
-
-//add stock to watchlist
-userApp.post('/watchlist/add', verifyToken('TRADER'), async(req, res) => {
-    try {
-        const { userId, stockId } = req.body;
-
-        if (!userId || !stockId) {
-            return res.status(400).json({ message: "userId and stockId are required" });
-        }
-
-        //check stock exists
-        const stock = await stockModel.findById(stockId);
-        if (!stock) {
-            return res.status(404).json({ message: "Stock not found" });
-        }
-
-        const user = await userModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        //check if already in watchlist
-        if (user.watchlist.includes(stockId)) {
-            return res.status(400).json({ message: "Stock is already in your watchlist" });
-        }
-
-        user.watchlist.push(stockId);
-        await user.save();
-
-        res.status(201).json({
-            message: "Stock added to watchlist",
-            watchlist: user.watchlist
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error adding to watchlist", error: error.message });
-    }
-});
-
-//remove stock from watchlist
-userApp.delete('/watchlist/remove/:userId/:stockId', verifyToken('TRADER'), async(req, res) => {
-    try {
-        const { userId, stockId } = req.params;
-
-        const user = await userModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
-        }
-
-        const index = user.watchlist.indexOf(stockId);
-        if (index === -1) {
-            return res.status(400).json({ message: "Stock not in your watchlist" });
-        }
-
-        user.watchlist.splice(index, 1);
-        await user.save();
-
-        res.json({
-            message: "Stock removed from watchlist",
-            watchlist: user.watchlist
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error removing from watchlist", error: error.message });
     }
 });
 

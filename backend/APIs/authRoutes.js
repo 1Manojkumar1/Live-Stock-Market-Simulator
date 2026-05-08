@@ -104,4 +104,18 @@ authApp.get('/logout',async(req,res,next)=>{
     }
 })
 
+// route to get current user data from token
+import { verifyToken } from '../middlewares/verifyToken.js'
+authApp.get('/me', verifyToken('TRADER', 'ADMIN'), async(req, res) => {
+    try {
+        const user = await userModel.findById(req.user.userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({ user });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching user data", error: error.message });
+    }
+});
+
 export default authApp;
