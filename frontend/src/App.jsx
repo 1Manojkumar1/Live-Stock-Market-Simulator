@@ -10,6 +10,7 @@ import Layout from './components/layout/Layout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import PortfolioPage from './pages/PortfolioPage';
 import Market from './pages/Market';
 import Watchlist from './pages/Watchlist';
 import Leaderboard from './pages/Leaderboard';
@@ -40,6 +41,7 @@ const AppRoutes = () => {
                         <Route path="/" element={
                             user?.role === 'ADMIN' ? <Navigate to="/admin" replace /> : <Dashboard />
                         } />
+                        <Route path="/portfolio" element={<PortfolioPage />} />
                         <Route path="/market" element={<Market />} />
                         <Route path="/watchlist" element={<Watchlist />} />
                         <Route path="/leaderboard" element={<Leaderboard />} />
@@ -63,14 +65,18 @@ const AppRoutes = () => {
     );
 };
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
     return (
         <AuthProvider>
             <SocketProvider>
+                <Toaster position="top-right" reverseOrder={false} />
                 <AppRoutes />
             </SocketProvider>
         </AuthProvider>
     );
 }
+
 
 export default App;

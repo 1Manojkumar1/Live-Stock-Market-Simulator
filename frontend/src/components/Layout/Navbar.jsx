@@ -24,17 +24,20 @@ const Navbar = () => {
             </div>
 
             <div className="flex items-center gap-4 md:gap-6">
-                <div className="hidden sm:flex items-center gap-3">
-                    <div className="flex flex-col items-end">
-                        <span className="text-sm font-semibold text-gray-900">{user?.name || 'Trader'}</span>
-                        <span className="text-xs text-gray-500 font-medium">₹{user?.balance?.toLocaleString('en-IN') || '0'}</span>
-                    </div>
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 border border-gray-200">
-                        <User size={20} />
-                    </div>
-                </div>
-
-                <div className="h-6 w-px bg-gray-200 hidden sm:block"></div>
+                {user?.role === 'TRADER' && (
+                    <>
+                        <div className="hidden sm:flex items-center gap-3">
+                            <div className="flex flex-col items-end">
+                                <span className="text-sm font-semibold text-gray-900">{user?.name}</span>
+                                <span className="text-xs text-gray-500 font-medium">₹{user?.balance?.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 border border-gray-200">
+                                <User size={20} />
+                            </div>
+                        </div>
+                        <div className="h-6 w-px bg-gray-200 hidden sm:block"></div>
+                    </>
+                )}
 
                 <button 
                     onClick={handleLogout}

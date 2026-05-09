@@ -201,9 +201,16 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
         }
 
         const saleAmount = stock.price * quantity;
+        const profit = saleAmount - (portfolio.avgBuyPrice * quantity);
 
         const user = await userModel.findById(userId);
         user.balance += saleAmount;
+        
+        // Update scores
+        user.weeklyScore = (user.weeklyScore || 0) + profit;
+        user.monthlyScore = (user.monthlyScore || 0) + profit;
+        user.totalProfit = (user.totalProfit || 0) + profit;
+
         await user.save();
 
         if (portfolio.quantity === quantity) {
@@ -212,6 +219,7 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
             portfolio.quantity -= quantity;
             await portfolio.save();
         }
+
 
         const transaction = await transactionModel.create({
             userId,
@@ -534,81 +542,100 @@ userApp.delete('/alerts/:alertId', verifyToken('TRADER'), async(req, res) => {
 // LEADERBOARD
 // ========================
 
-//get trading leaderboard (top 10 traders by portfolio profit)
-userApp.get('/leaderboard', async(req, res) => {
-    try {
-        //get all traders (exclude admins)
-        const traders = await userModel.find({ role: "TRADER" }).select('name email balance');
-
-        const leaderboard = [];
-
-        for (const trader of traders) {
-            //get portfolio for this trader
-            const portfolio = await portfolioModel
-                .find({ userId: trader._id })
-                .populate('stockId', 'price');
-
-            //calculate current portfolio value and total invested
-            let totalCurrentValue = 0;
-            let totalInvested = 0;
-
-            for (const item of portfolio) {
-                const currentPrice = item.stockId?.price || 0;
-                totalCurrentValue += currentPrice * item.quantity;
-                totalInvested += item.avgBuyPrice * item.quantity;
+// Helper to calculate a user's current net worth (balance + holdings).
+const calculateNetWorth = (user, userPortfolios) => {
+    let holdingsValue = 0;
+    if (userPortfolios) {
+        userPortfolios.forEach(item => {
+            if (item.stockId && item.stockId.price) {
+                holdingsValue += item.quantity * item.stockId.price;
             }
+        });
+    }
+    return user.balance + holdingsValue;
+};
 
-            //calculate realized profit from completed sells
-            const sellTransactions = await transactionModel.find({
-                userId: trader._id,
-                type: "SELL"
-            });
-            const buyTransactions = await transactionModel.find({
-                userId: trader._id,
-                type: "BUY"
-            });
+// get trading leaderboard
+userApp.get('/leaderboard', async (req, res) => {
+    try {
+        const { period = 'all' } = req.query; // 'all', 'weekly', 'monthly'
 
-            const totalSellValue = sellTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
-            const totalBuyValue = buyTransactions.reduce((sum, t) => sum + t.totalAmount, 0);
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
 
-            //total profit = (current portfolio value + cash from sells) - total money spent on buys
-            //simplified: unrealized P/L + balance change from initial
-            const unrealizedPL = totalCurrentValue - totalInvested;
-            const totalProfit = unrealizedPL + (totalSellValue - totalBuyValue) + (totalCurrentValue - totalInvested);
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        startOfMonth.setHours(0, 0, 0, 0);
 
-            //simpler calculation: net worth - initial balance (10000)
-            const netWorth = trader.balance + totalCurrentValue;
-            const profit = netWorth - 10000; //assuming initial balance was 10000
-
-            leaderboard.push({
-                userId: trader._id,
-                name: trader.name,
-                email: trader.email,
-                currentBalance: trader.balance,
-                portfolioValue: totalCurrentValue,
-                netWorth,
-                profit,
-                totalTrades: sellTransactions.length + buyTransactions.length
-            });
-        }
-
-        //sort by profit (highest first) and take top 10
-        leaderboard.sort((a, b) => b.profit - a.profit);
-        const top10 = leaderboard.slice(0, 10);
-
-        //add rank
-        top10.forEach((entry, index) => {
-            entry.rank = index + 1;
+        // Fetch all portfolios and populate stock data to calculate accurate net worth
+        const allPortfolios = await portfolioModel.find().populate('stockId', 'price');
+        const groupedPortfolios = {};
+        allPortfolios.forEach(p => {
+            const uId = p.userId.toString();
+            if (!groupedPortfolios[uId]) groupedPortfolios[uId] = [];
+            groupedPortfolios[uId].push(p);
         });
 
+        // Lazy snapshot resets – if the stored reset timestamp is older, capture a new snapshot of net worth.
+        const allTraders = await userModel.find({ role: "TRADER" });
+        for (const trader of allTraders) {
+            const netWorth = calculateNetWorth(trader, groupedPortfolios[trader._id.toString()]);
+            if (trader.lastWeeklyReset < startOfWeek) {
+                trader.weeklyNetWorthSnapshot = netWorth;
+                trader.lastWeeklyReset = now;
+                await trader.save();
+            }
+            if (trader.lastMonthlyReset < startOfMonth) {
+                trader.monthlyNetWorthSnapshot = netWorth;
+                trader.lastMonthlyReset = now;
+                await trader.save();
+            }
+        }
+
+        // Determine which base snapshot to use for ROI.
+        let baseField = 'totalDeposited'; // default for all‑time
+        if (period === 'weekly') baseField = 'weeklyNetWorthSnapshot';
+        if (period === 'monthly') baseField = 'monthlyNetWorthSnapshot';
+
+        const traders = await userModel
+            .find({ role: "TRADER" })
+            .select(`name email balance ${baseField} totalDeposited`)
+            .lean();
+
+        const leaderboard = traders
+            .map((trader) => {
+                const netWorth = calculateNetWorth(trader, groupedPortfolios[trader._id.toString()]);
+                const base = trader[baseField] || trader.totalDeposited || 10000;
+                const roi = ((netWorth - base) / base) * 100;
+                const profitAmount = netWorth - base;
+                return {
+                    userId: trader._id,
+                    name: trader.name,
+                    email: trader.email,
+                    balance: trader.balance,
+                    netWorth: Number(netWorth.toFixed(2)),
+                    roi: Number(roi.toFixed(2)),
+                    profitAmount: Number(profitAmount.toFixed(2)),
+                    period,
+                };
+            })
+            .filter((trader) => trader.roi > 0)
+            .sort((a, b) => b.roi - a.roi)
+            .slice(0, 20)
+            .map((trader, idx) => ({ ...trader, rank: idx + 1 }));
+
         res.json({
-            message: "Leaderboard fetched successfully",
-            leaderboard: top10
+            message: `${period.charAt(0).toUpperCase() + period.slice(1)} leaderboard fetched successfully`,
+            period,
+            leaderboard,
         });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error fetching leaderboard", error: error.message });
     }
 });
+
+
 
 export default userApp;

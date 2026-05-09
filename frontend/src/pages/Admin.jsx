@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import UsersList from '../components/Admin/UsersList';
-import StockManager from '../components/Admin/StockManager';
+
 import SystemLogs from '../components/Admin/SystemLogs';
 import Admindashboard from '../components/Admin/Admindashboard';
 import SystemSettings from '../components/Admin/SystemSettings';
-import { LayoutGrid, Users, Package, History, Settings } from 'lucide-react';
+import RewardsSettings from '../components/Admin/RewardsSettings';
+import { LayoutGrid, Users, History, Settings, Gift } from 'lucide-react';
 
 const Admin = () => {
     const [activeTab, setActiveTab] = useState('overview');
@@ -12,8 +13,8 @@ const Admin = () => {
     const tabs = [
         { id: 'overview', name: 'Overview', icon: <LayoutGrid size={20} /> },
         { id: 'users', name: 'User Management', icon: <Users size={20} /> },
-        { id: 'stocks', name: 'Stock Inventory', icon: <Package size={20} /> },
         { id: 'transactions', name: 'Audit Logs', icon: <History size={20} /> },
+        { id: 'rewards', name: 'Rewards Management', icon: <Gift size={20} /> },
         { id: 'settings', name: 'System Settings', icon: <Settings size={20} /> },
     ];
 
@@ -21,12 +22,14 @@ const Admin = () => {
         switch (activeTab) {
             case 'overview': return <Admindashboard onNavigate={setActiveTab} />;
             case 'users': return <UsersList />;
-            case 'stocks': return <StockManager />;
             case 'transactions': return <SystemLogs />;
+            case 'rewards': return <RewardsSettings />;
             case 'settings': return <SystemSettings />;
             default: return <Admindashboard onNavigate={setActiveTab} />;
         }
     };
+
+
 
     return (
         <div className="min-h-screen bg-gray-50/50">

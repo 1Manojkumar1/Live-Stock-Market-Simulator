@@ -1,5 +1,6 @@
 import { Schema, model } from "mongoose";
 import mongoose from "mongoose";
+
 const userSchema = new Schema(
   {
     name:{
@@ -42,6 +43,35 @@ const userSchema = new Schema(
         ref: "Stock",
       },
     ],
+
+    // === LEADERBOARD: NET WORTH SNAPSHOT SYSTEM ===
+
+    // Total money ever deposited (initial + add-funds), used for all-time ROI base
+    totalDeposited: {
+      type: Number,
+      default: 10000,
+    },
+
+    // Net Worth snapshots taken at the START of each period.
+    // ROI = ((currentNetWorth - snapshotNetWorth) / snapshotNetWorth) * 100
+    weeklyNetWorthSnapshot: {
+      type: Number,
+      default: 10000,
+    },
+    monthlyNetWorthSnapshot: {
+      type: Number,
+      default: 10000,
+    },
+
+    // Timestamps of the last snapshot so we know when to refresh
+    lastWeeklyReset: {
+      type: Date,
+      default: Date.now,
+    },
+    lastMonthlyReset: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true },
 );

@@ -10,9 +10,9 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler
 } from 'chart.js';
 
-// Register ChartJS modules
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -20,35 +20,53 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
-const StockChart = ({ stockId, initialHistory }) => {
+const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
     const socket = useContext(SocketContext);
     const [chartData, setChartData] = useState({
-        labels: initialHistory.map(h => new Date(h.timestamp).toLocaleTimeString()),
+        labels: [],
         datasets: [{
-            label: 'Price (₹)',
-            data: initialHistory.map(h => h.price),
-            borderColor: '#10b981', // Success Green
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.3,
+            label: 'Price',
+            data: [],
+            borderColor: '#18181b',
+            backgroundColor: 'rgba(24, 24, 27, 0.05)',
+            tension: 0.4,
+            pointRadius: 0,
             fill: true,
         }]
     });
 
+    // Update chart data when initialHistory changes (after async fetch)
+    useEffect(() => {
+        if (initialHistory && initialHistory.length > 0) {
+            setChartData({
+                labels: initialHistory.map(h => new Date(h.timestamp).toLocaleTimeString()),
+                datasets: [{
+                    label: 'Price',
+                    data: initialHistory.map(h => h.price),
+                    borderColor: '#18181b',
+                    backgroundColor: 'rgba(24, 24, 27, 0.05)',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: true,
+                }]
+            });
+        }
+    }, [initialHistory]);
+
     useEffect(() => {
         if (!socket) return;
 
-        // Listen for live price updates for this specific stock
-        socket.on('stockPriceUpdate', (update) => {
+        const handleUpdate = (update) => {
             if (update.stockId === stockId) {
                 setChartData(prev => {
                     const newLabels = [...prev.labels, new Date(update.timestamp).toLocaleTimeString()];
                     const newData = [...prev.datasets[0].data, update.newPrice];
 
-                    // Keep only the last 20 points to prevent chart from getting too crowded
-                    if (newLabels.length > 20) {
+                    if (newLabels.length > 30) {
                         newLabels.shift();
                         newData.shift();
                     }
@@ -58,35 +76,55 @@ const StockChart = ({ stockId, initialHistory }) => {
                         datasets: [{
                             ...prev.datasets[0],
                             data: newData,
-                            // Change color to red if price went down
-                            borderColor: update.priceChange < 0 ? '#ef4444' : '#10b981'
+                            borderColor: update.priceChange < 0 ? '#f43f5e' : '#10b981',
+                            backgroundColor: update.priceChange < 0 ? 'rgba(244, 63, 94, 0.05)' : 'rgba(16, 185, 129, 0.05)',
                         }]
                     };
                 });
             }
-        });
+        };
 
-        return () => socket.off('stockPriceUpdate');
+        socket.on('stockPriceUpdate', handleUpdate);
+        return () => socket.off('stockPriceUpdate', handleUpdate);
     }, [socket, stockId]);
 
     const options = {
         responsive: true,
+        maintainAspectRatio: false,
         plugins: {
             legend: { display: false },
-            tooltip: { mode: 'index', intersect: false },
+            tooltip: { 
+                enabled: !compact && chartData.labels.length > 0,
+                mode: 'index', 
+                intersect: false,
+                backgroundColor: '#18181b',
+                padding: 10,
+                displayColors: false
+            },
         },
         scales: {
-            x: { grid: { display: false } },
-            y: { beginAtZero: false }
+            x: { display: !compact, grid: { display: false } },
+            y: { display: !compact, grid: { color: '#f4f4f5' }, beginAtZero: false }
+        },
+        elements: {
+            line: {
+                borderWidth: compact ? 2 : 3
+            }
         },
         animation: { duration: 500 }
     };
 
+    if (chartData.labels.length === 0) {
+        return <div className={`w-full ${compact ? 'h-16' : 'h-64'} bg-gray-50/50 animate-pulse rounded-xl`} />;
+    }
+
     return (
-        <div className="bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-700">
+        <div className={`w-full ${compact ? 'h-16' : 'h-64'}`}>
             <Line data={chartData} options={options} />
         </div>
     );
 };
 
 export default StockChart;
+
+

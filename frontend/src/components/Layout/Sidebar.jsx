@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Eye, Award, ShieldAlert, UserCog } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Eye, Award, ShieldAlert, UserCog, Briefcase } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
@@ -9,6 +9,7 @@ const Sidebar = () => {
 
     const traderLinks = [
         { path: '/', name: 'Overview', icon: <LayoutDashboard size={20} /> },
+        { path: '/portfolio', name: 'Portfolio', icon: <Briefcase size={20} /> },
         { path: '/market', name: 'Live Market', icon: <TrendingUp size={20} /> },
         { path: '/watchlist', name: 'Watchlist', icon: <Eye size={20} /> },
         { path: '/leaderboard', name: 'Leaderboard', icon: <Award size={20} /> },
@@ -22,8 +23,10 @@ const Sidebar = () => {
     const navLinks = isAdmin ? adminLinks : traderLinks;
 
     return (
-        <aside className="w-16 lg:w-72 bg-white border-r border-gray-100 shrink-0 flex flex-col h-screen sticky top-0">
-            <div className="p-4 lg:p-6 flex-1 overflow-y-auto">
+        <aside className="w-16 lg:w-72 bg-white border-r border-gray-100 shrink-0 flex flex-col h-full overflow-hidden">
+
+            <div className="p-4 lg:p-6 flex-1">
+
                 <div className="mb-10 px-2 hidden lg:block">
                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">
                         {isAdmin ? 'Administration' : 'Trading Desk'}
@@ -53,18 +56,6 @@ const Sidebar = () => {
                         </li>
                     ))}
                 </ul>
-
-                {isAdmin && (
-                    <div className="mt-10 lg:mt-12 px-4 py-6 bg-blue-50 rounded-3xl border border-blue-100 hidden lg:block">
-                        <div className="flex items-center gap-2 text-blue-600 mb-2">
-                            <UserCog size={18} />
-                            <span className="font-black text-xs uppercase tracking-wider">Admin Status</span>
-                        </div>
-                        <p className="text-[10px] text-blue-400 font-bold leading-relaxed">
-                            Full system access granted. Monitor all trades and user activity.
-                        </p>
-                    </div>
-                )}
             </div>
             
             <div className="p-6 border-t border-gray-50 hidden lg:block">

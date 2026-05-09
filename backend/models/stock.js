@@ -3,7 +3,7 @@ import { Schema, model } from "mongoose";
 const stockSchema = new Schema(
   {
     stockid: {
-      type: Number,
+      type: String,
       required: [true, "id is required"],
     },
     stockName: {
@@ -27,12 +27,16 @@ const stockSchema = new Schema(
       type: String,
       default: "General",
     },
+    logo: {
+      type: String,
+    },
     priceHistory: [
       {
         price: Number,
         timestamp: { type: Date, default: Date.now },
       },
     ],
+
   },
   { timestamps: true },
 );

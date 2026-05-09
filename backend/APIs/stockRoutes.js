@@ -2,6 +2,8 @@ import exp from "express";
 import { stockModel } from "../models/stock.js";
 import { alertModel } from "../models/alertModel.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import fetch from 'node-fetch';
+
 
 const stockApp = exp.Router();
 
@@ -179,8 +181,6 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
   }
 });
 
-import fetch from 'node-fetch';
-
 // Helper to fetch a live price from Finnhub
 const getFinnhubQuote = async (symbol) => {
     const apiKey = process.env.FINNHUB_API_KEY;
@@ -202,4 +202,74 @@ stockApp.get('/external-price/:symbol', async (req, res) => {
     }
 });
 
+// route: GET search for any ticker globally via Finnhub
+stockApp.get('/search-external', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.status(400).json({ message: "Search query required" });
+
+        const apiKey = process.env.FINNHUB_API_KEY;
+        const response = await fetch(`https://finnhub.io/api/v1/search?q=${encodeURIComponent(q)}&token=${apiKey}`);
+        const data = await response.json();
+
+        // Filter for equities/stocks only for better UX
+        const results = (data.result || []).filter(item => item.type === 'Common Stock' || item.type === 'ADR');
+        
+        res.json({ results });
+    } catch (err) {
+        res.status(500).json({ message: "Error searching Finnhub", error: err.message });
+    }
+});
+
+// route: POST bootstrap a new stock from Finnhub into local DB
+stockApp.post('/bootstrap-stock', verifyToken("TRADER"), async (req, res) => {
+    try {
+        const { symbol } = req.body;
+        if (!symbol) return res.status(400).json({ message: "Symbol required" });
+
+        // Check if already exists
+        const existing = await stockModel.findOne({ symbol: symbol.toUpperCase() });
+        if (existing) return res.json({ message: "Stock already tracked", stock: existing });
+
+        const apiKey = process.env.FINNHUB_API_KEY;
+        
+        // Fetch quote for current price
+        const quoteRes = await fetch(`https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`);
+        const quoteData = await quoteRes.json();
+        
+        if (!quoteData.c) return res.status(404).json({ message: "Stock price not found on Finnhub" });
+
+        // Fetch profile for stock name
+        const profileRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${apiKey}`);
+        const profileData = await profileRes.json();
+
+        const stock = await stockModel.create({
+            stockid: `STK-${Date.now()}`,
+            stockName: profileData.name || symbol,
+            symbol: symbol.toUpperCase(),
+            price: quoteData.c,
+            priceChange: quoteData.d || 0,
+            category: profileData.finnhubIndustry || "General",
+            logo: profileData.logo,
+            priceHistory: [{ price: quoteData.c, timestamp: new Date() }]
+        });
+
+        res.status(201).json({ message: "Stock bootstrapped successfully", stock });
+    } catch (err) {
+        res.status(500).json({ message: "Error bootstrapping stock", error: err.message });
+    }
+});
+
+// route: GET unique categories from tracked stocks
+stockApp.get('/categories', async (req, res) => {
+    try {
+        const categories = await stockModel.distinct('category');
+        res.json({ categories });
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching categories", error: err.message });
+    }
+});
+
 export default stockApp;
+
+
