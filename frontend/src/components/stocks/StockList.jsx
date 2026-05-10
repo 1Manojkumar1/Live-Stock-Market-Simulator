@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import StockCard from './StockCard';
+import Loader from '../Loader';
 
 const StockList = ({ filters }) => {
     const [stocks, setStocks] = useState([]);
@@ -27,8 +28,8 @@ const StockList = ({ filters }) => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            <div className="flex justify-center items-center py-20 min-h-[400px]">
+                <Loader />
             </div>
         );
     }

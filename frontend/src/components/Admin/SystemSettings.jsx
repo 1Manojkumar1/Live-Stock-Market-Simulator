@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Settings, Save, ShieldAlert, CircleDollarSign, Percent, Construction, Edit3 } from 'lucide-react';
+import Loader from '../Loader';
 
 const SystemSettings = () => {
     const [settings, setSettings] = useState({
@@ -55,8 +56,8 @@ const SystemSettings = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            <div className="flex justify-center items-center py-40">
+                <Loader />
             </div>
         );
     }

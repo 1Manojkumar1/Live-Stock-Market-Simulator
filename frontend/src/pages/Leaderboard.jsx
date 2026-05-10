@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Trophy, Medal, Crown, TrendingUp, User, Calendar, Clock, Award, Percent } from 'lucide-react';
+import Loader from '../components/Loader';
+import { Trophy, Medal, Crown, TrendingUp, User, Calendar, Clock, Award } from 'lucide-react';
 
 const Leaderboard = () => {
     const [leaders, setLeaders] = useState([]);
@@ -41,6 +42,14 @@ const Leaderboard = () => {
         return "Total Return";
     };
 
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center py-20">
+                <Loader />
+            </div>
+        );
+    }
+
     return (
         <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-8">
             <header className="text-center">
@@ -75,11 +84,7 @@ const Leaderboard = () => {
                 </div>
             </div>
             
-            {loading ? (
-                <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-                </div>
-            ) : error ? (
+            {error ? (
                 <div className="bg-red-50 text-red-600 p-6 rounded-3xl text-center shadow-sm border border-red-100">
                     {error}
                 </div>
@@ -156,64 +161,64 @@ const Leaderboard = () => {
             )}
             
             {/* HOW RANKING WORKS */}
-<div className="flex flex-col items-center mt-6">
-    <button
-        onClick={() => setShowROIInfo(!showROIInfo)}
-        className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-colors"
-    >
-        {showROIInfo ? 'Hide Details' : 'How Rankings Work'}
-    </button>
+            <div className="flex flex-col items-center mt-6">
+                <button
+                    onClick={() => setShowROIInfo(!showROIInfo)}
+                    className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-lg font-bold uppercase tracking-widest text-[10px] transition-colors"
+                >
+                    {showROIInfo ? 'Hide Details' : 'How Rankings Work'}
+                </button>
 
-    {showROIInfo && (
-        <div className="mt-4 max-w-2xl w-full bg-zinc-50 border border-zinc-200 rounded-xl p-5 text-sm text-zinc-700 leading-relaxed">
-            <h3 className="font-bold text-zinc-900 uppercase tracking-widest text-xs mb-3">
-                ROI Ranking System
-            </h3>
+                {showROIInfo && (
+                    <div className="mt-4 max-w-2xl w-full bg-zinc-50 border border-zinc-200 rounded-xl p-5 text-sm text-zinc-700 leading-relaxed">
+                        <h3 className="font-bold text-zinc-900 uppercase tracking-widest text-xs mb-3">
+                            ROI Ranking System
+                        </h3>
 
-            <p className="mb-4">
-                Traders are ranked based on their ROI (Return on Investment), which measures how efficiently they grow their capital over time.
-            </p>
+                        <p className="mb-4">
+                            Traders are ranked based on their ROI (Return on Investment), which measures how efficiently they grow their capital over time.
+                        </p>
 
-            <div className="space-y-3">
-                <div>
-                    <p className="font-bold text-gray-900">Initial Capital</p>
-                    <p>
-                        Every trader starts with an initial investment amount. If no deposits are made, the default starting capital is ₹10,000.
-                    </p>
-                </div>
+                        <div className="space-y-3">
+                            <div>
+                                <p className="font-bold text-gray-900">Initial Capital</p>
+                                <p>
+                                    Every trader starts with an initial investment amount. If no deposits are made, the default starting capital is ₹10,000.
+                                </p>
+                            </div>
 
-                <div>
-                    <p className="font-bold text-gray-900">Current Net Worth</p>
-                    <p>
-                        Net worth includes available cash balance plus the live market value of all held stocks.
-                    </p>
-                </div>
+                            <div>
+                                <p className="font-bold text-gray-900">Current Net Worth</p>
+                                <p>
+                                    Net worth includes available cash balance plus the live market value of all held stocks.
+                                </p>
+                            </div>
 
-                <div>
-                    <p className="font-bold text-gray-900">ROI Formula</p>
-                    <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 mt-2 font-mono text-sm text-gray-900">
-                        ROI = ((Current Net Worth − Initial Investment) / Initial Investment) × 100
+                            <div>
+                                <p className="font-bold text-gray-900">ROI Formula</p>
+                                <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 mt-2 font-mono text-sm text-gray-900">
+                                    ROI = ((Current Net Worth − Initial Investment) / Initial Investment) × 100
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="font-bold text-gray-900">Example</p>
+                                <p>
+                                    If a trader starts with ₹10,000 and grows it to ₹12,500, their ROI becomes
+                                    <span className="text-green-600 font-black"> +25%</span>.
+                                </p>
+                            </div>
+
+                            <div>
+                                <p className="font-bold text-gray-900">Fair Rankings</p>
+                                <p>
+                                    Rankings are based on percentage returns instead of total money earned, ensuring fair competition between traders with different portfolio sizes.
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div>
-                    <p className="font-bold text-gray-900">Example</p>
-                    <p>
-                        If a trader starts with ₹10,000 and grows it to ₹12,500, their ROI becomes
-                        <span className="text-green-600 font-black"> +25%</span>.
-                    </p>
-                </div>
-
-                <div>
-                    <p className="font-bold text-gray-900">Fair Rankings</p>
-                    <p>
-                        Rankings are based on percentage returns instead of total money earned, ensuring fair competition between traders with different portfolio sizes.
-                    </p>
-                </div>
+                )}
             </div>
-        </div>
-    )}
-</div>
         </div>
     );
 };

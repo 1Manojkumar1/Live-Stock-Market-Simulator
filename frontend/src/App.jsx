@@ -15,14 +15,16 @@ import Market from './pages/Market';
 import Watchlist from './pages/Watchlist';
 import Leaderboard from './pages/Leaderboard';
 import Admin from './pages/Admin';
+import Home from './pages/Home';
+import Loader from './components/Loader';
 
 const AppRoutes = () => {
     const { user, loading } = useContext(AuthContext);
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <Loader />
             </div>
         );
     }
@@ -31,16 +33,18 @@ const AppRoutes = () => {
         <Router>
             <Routes>
                 {/* Public Routes */}
-                <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
-                <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
+                <Route path="/" element={
+                    user ? (
+                        user.role === 'ADMIN' ? <Navigate to="/admin" replace /> : <Navigate to="/dashboard" replace />
+                    ) : <Home />
+                } />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
                 {/* Protected Layout Routes */}
                 <Route element={<ProtectedRoute />}>
                     <Route element={<Layout />}>
-                        {/* Redirect based on role at root path */}
-                        <Route path="/" element={
-                            user?.role === 'ADMIN' ? <Navigate to="/admin" replace /> : <Dashboard />
-                        } />
+                        <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/portfolio" element={<PortfolioPage />} />
                         <Route path="/market" element={<Market />} />
                         <Route path="/watchlist" element={<Watchlist />} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { ArrowUpRight, ArrowDownRight, Clock, History } from 'lucide-react';
+import Loader from '../Loader';
 
 const RecentTrades = ({ userId }) => {
     const [trades, setTrades] = useState([]);
@@ -28,13 +29,8 @@ const RecentTrades = ({ userId }) => {
 
     if (loading) {
         return (
-            <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-6 h-full min-h-[400px] flex flex-col">
-                <div className="animate-pulse flex-1">
-                    <div className="h-8 bg-gray-100 rounded-xl w-48 mb-6"></div>
-                    <div className="space-y-4">
-                         {[1, 2, 3, 4].map(i => <div key={i} className="h-16 bg-gray-50 rounded-2xl w-full"></div>)}
-                    </div>
-                </div>
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-xl p-6 h-full min-h-[400px] flex items-center justify-center">
+                <Loader />
             </div>
         );
     }
@@ -48,9 +44,6 @@ const RecentTrades = ({ userId }) => {
                     </div>
                     Recent Activity
                 </h3>
-                <button className="text-[10px] font-bold text-zinc-400 hover:text-zinc-900 transition-colors uppercase tracking-widest">
-                    View All
-                </button>
             </div>
             
             {error ? (

@@ -4,6 +4,7 @@ import { AuthContext } from '../contexts/AuthContext';
 import { SocketContext } from '../contexts/SocketContext';
 import StockCard from '../components/stocks/StockCard';
 import toast from 'react-hot-toast';
+import Loader from '../components/Loader';
 import { Eye, EyeOff, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Activity } from 'lucide-react';
 
 const Watchlist = () => {
@@ -47,7 +48,7 @@ const Watchlist = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+                <Loader />
             </div>
         );
     }

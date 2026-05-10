@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { Gift, Save, Edit3, Clock, Trophy, Medal, Calendar } from 'lucide-react';
+import Loader from '../Loader';
 
 
 const RewardsSettings = () => {
@@ -42,8 +43,8 @@ const RewardsSettings = () => {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-black"></div>
+            <div className="flex justify-center items-center py-40">
+                <Loader />
             </div>
         );
     }

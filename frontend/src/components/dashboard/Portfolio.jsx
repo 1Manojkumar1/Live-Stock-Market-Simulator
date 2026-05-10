@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { TrendingUp, TrendingDown, Briefcase, Info } from 'lucide-react';
 import StockChart from '../stocks/StockChart';
+import Loader from '../Loader';
 
 const Portfolio = ({ userId }) => {
     const [data, setData] = useState({ portfolio: [], summary: {} });
@@ -29,13 +30,8 @@ const Portfolio = ({ userId }) => {
 
     if (loading) {
         return (
-            <div className="bg-white border border-zinc-200 shadow-sm rounded-xl p-6 h-full min-h-[300px] flex flex-col">
-                <div className="animate-pulse flex-1">
-                    <div className="h-6 bg-zinc-100 rounded w-40 mb-6"></div>
-                    <div className="space-y-3">
-                         {[1, 2, 3, 4].map(i => <div key={i} className="h-12 bg-zinc-50 rounded-lg w-full"></div>)}
-                    </div>
-                </div>
+            <div className="bg-white border border-zinc-200 shadow-sm rounded-xl p-6 h-full min-h-[400px] flex items-center justify-center">
+                <Loader />
             </div>
         );
     }

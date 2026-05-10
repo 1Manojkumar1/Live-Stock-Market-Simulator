@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
-import { Users, UserCheck, UserMinus, UserX, Activity, TrendingUp, Clock, Wallet, Settings, History, Package, Search, Gift, ShieldAlert, Cpu } from 'lucide-react';
+import {Users, UserCheck, UserMinus, UserX, Activity, Search } from 'lucide-react';
+import Loader from '../Loader';
 
-function AdminDashboard({ onNavigate }) {
+function AdminDashboard({ }) {
   const [data, setData] = useState({
     stats: {
       totalUsers: 0,
@@ -81,8 +82,8 @@ function AdminDashboard({ onNavigate }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+      <div className="flex justify-center items-center py-40">
+        <Loader />
       </div>
     );
   }

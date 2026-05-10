@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Wallet, Plus, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { Wallet, Plus} from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -41,10 +41,6 @@ const WalletCard = () => {
                 <div className="flex justify-between items-start mb-6">
                     <div className="p-2.5 bg-white/10 rounded-lg backdrop-blur-md">
                         <Wallet className="text-white" size={18} />
-                    </div>
-                    <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-full text-[10px] font-bold border border-emerald-500/20">
-                        <ShieldCheck size={12} />
-                        Verified
                     </div>
                 </div>
 

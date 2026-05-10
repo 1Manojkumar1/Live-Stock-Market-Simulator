@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { TrendingUp } from 'lucide-react';
 import api from '../services/api';
 
 const Register = () => {
@@ -29,99 +30,80 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="mx-auto w-12 h-12 bg-black text-white flex items-center justify-center rounded-xl font-bold text-2xl">
-                    C
+        <div className="min-h-screen bg-white flex flex-col justify-center py-12 px-6">
+            <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                <div className="flex flex-col items-center">
+                    <div className="w-10 h-10 bg-zinc-900 text-white flex items-center justify-center rounded-lg shadow-sm mb-6">
+                        <TrendingUp size={20} />
+                    </div>
+                    <h2 className="text-xl font-bold text-zinc-900 tracking-tight uppercase">
+                        Create Account
+                    </h2>
+                    <p className="mt-1.5 text-center text-[11px] font-medium text-zinc-500 uppercase tracking-widest">
+                        Already have one?{' '}
+                        <Link to="/login" className="text-zinc-900 font-bold hover:underline underline-offset-4">
+                            Sign In
+                        </Link>
+                    </p>
                 </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Create a new account
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    Or{' '}
-                    <Link to="/login" className="font-medium text-black hover:text-gray-800">
-                        sign in to your existing account
-                    </Link>
-                </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                <div className="bg-white px-8 py-10 rounded-xl border border-zinc-100 shadow-sm">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
                         {error && (
-                            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm text-center">
+                            <div className="bg-rose-50 text-rose-600 p-3 rounded text-[10px] text-center font-bold uppercase tracking-widest border border-rose-100">
                                 {error}
                             </div>
                         )}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1 mb-1.5">
                                 Full Name
                             </label>
-                            <div className="mt-1">
-                                <input
-                                    name="name"
-                                    type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                                />
-                            </div>
+                            <input
+                                name="name"
+                                type="text"
+                                required
+                                value={formData.name}
+                                onChange={handleChange}
+                                className="block w-full px-4 py-2 border border-zinc-200 rounded-lg text-sm bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all"
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Email address
+                            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1 mb-1.5">
+                                Email Address
                             </label>
-                            <div className="mt-1">
-                                <input
-                                    name="email"
-                                    type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                                />
-                            </div>
+                            <input
+                                name="email"
+                                type="email"
+                                required
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="block w-full px-4 py-2 border border-zinc-200 rounded-lg text-sm bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all"
+                            />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-[10px] font-bold text-zinc-400 uppercase tracking-widest ml-1 mb-1.5">
                                 Password
                             </label>
-                            <div className="mt-1">
-                                <input
-                                    name="password"
-                                    type="password"
-                                    required
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
-                                Role
-                            </label>
-                            <select
-                                name="role"
-                                value={formData.role}
+                            <input
+                                name="password"
+                                type="password"
+                                required
+                                value={formData.password}
                                 onChange={handleChange}
-                                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-black focus:border-black sm:text-sm rounded-md"
-                            >
-                                <option value="TRADER">Trader</option>
-                                <option value="ADMIN">Admin</option>
-                            </select>
+                                className="block w-full px-4 py-2 border border-zinc-200 rounded-lg text-sm bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all"
+                            />
                         </div>
 
-                        <div>
+                        <div className="pt-2">
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors"
+                                className="w-full flex justify-center py-3 px-4 bg-zinc-900 text-white rounded-lg text-[11px] font-bold uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-sm active:scale-[0.98]"
                             >
-                                Register
+                                Create Account
                             </button>
                         </div>
                     </form>
