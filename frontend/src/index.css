@@ -1,33 +1,61 @@
-/* 
-  DESCRIPTION: 
-  This is your global design system. 
-  It should contain:
-  - Reset styles.
-  - Harmony colors (Dark mode themes, primary stock colors like Green/Red).
-  - Modern Typography (Inter/Roboto).
-  - Utility classes for spacing and glassmorphism cards.
-*/
+@import "tailwindcss";
 
-
-
-
-
-/* :root {
-  --primary: #2563eb;
+:root {
+  /* Colors - Zinc/Slate Palette */
+  --primary: #09090b;
+  --secondary: #71717a;
   --success: #10b981;
   --danger: #ef4444;
-  --bg-dark: #0f172a;
-  --card-dark: #1e293b;
+  --surface: #ffffff;
+  --surface-muted: #f9fafb;
+  --border: #e5e7eb;
+
+  /* Sizing - Scaling down to "Normal" */
+  --radius-card: 12px;
+  --radius-btn: 8px;
+  --space-card: 1.25rem; /* 20px */
+  
+  /* Typography */
+  --font-display: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
-  color: white;
+  font-family: var(--font-body);
+  background-color: #ffffff;
+  color: #09090b;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.stock-up { color: var(--success); }
-.stock-down { color: var(--danger); } */
+/* Custom Utility: Professional Minimalist Card */
+.card-minimal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-card);
+  transition: all 0.2s ease;
+}
 
-@import "tailwindcss";
+.card-minimal:hover {
+  border-color: #d1d5db;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* Professional Table Styles */
+.table-compact th {
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.table-compact td {
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f3f4f6;
+}

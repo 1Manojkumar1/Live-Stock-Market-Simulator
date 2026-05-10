@@ -32,79 +32,79 @@ const SystemConfig = () => {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex justify-between items-center">
+    <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
+      <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/30">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                    <ShieldCheck size={20} />
+                <div className="p-2 bg-zinc-100 text-zinc-600 rounded">
+                    <ShieldCheck size={16} />
                 </div>
-                <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase">Audit Logs</h3>
+                <h3 className="text-sm font-bold text-zinc-900 tracking-tight uppercase">Audit Logs</h3>
             </div>
-            <div className="bg-black text-white px-5 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg shadow-black/10">
-                {transactions.length} Verified Records
+            <div className="bg-zinc-900 text-white px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border border-zinc-900">
+                {transactions.length} Records
             </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/30 border-b border-gray-100">
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Trader Identifier</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Asset Information</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Execution Type</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Transaction Value</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Execution Time</th>
+              <tr className="bg-zinc-50/50 border-b border-zinc-200">
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Trader</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Asset</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Type</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Value</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Time</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-zinc-100">
               {transactions.length > 0 ? (
                 transactions.map((trans) => (
-                  <tr key={trans._id} className="hover:bg-gray-50/50 transition-all duration-200 group">
-                    <td className="py-6 px-8">
+                  <tr key={trans._id} className="hover:bg-zinc-50/50 transition-colors group text-sm">
+                    <td className="py-3.5 px-6">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 border border-gray-100 group-hover:bg-black group-hover:text-white transition-all">
-                          <User size={18} />
+                        <div className="w-8 h-8 bg-zinc-100 rounded flex items-center justify-center text-zinc-400 border border-zinc-200 group-hover:bg-zinc-900 group-hover:text-white transition-colors">
+                          <User size={14} />
                         </div>
                         <div>
-                          <p className="font-black text-gray-900 leading-tight">{trans.userId?.name || 'System User'}</p>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{trans.userId?.email || 'N/A'}</p>
+                          <p className="font-bold text-zinc-900 leading-tight">{trans.userId?.name || 'System'}</p>
+                          <p className="text-[10px] text-zinc-400 font-medium">{trans.userId?.email || 'N/A'}</p>
                         </div>
                       </div>
                     </td>
 
-                    <td className="py-6 px-8">
+                    <td className="py-3.5 px-6">
                       <div>
-                        <p className="font-black text-gray-900 leading-tight">{trans.stockId?.symbol || 'N/A'}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider truncate max-w-[150px]">{trans.stockId?.stockName || 'Unknown Entity'}</p>
+                        <p className="font-bold text-zinc-900 leading-tight">{trans.stockId?.symbol || 'N/A'}</p>
+                        <p className="text-[10px] text-zinc-400 font-medium truncate max-w-[120px]">{trans.stockId?.stockName || 'Unknown'}</p>
                       </div>
                     </td>
 
-                    <td className="py-6 px-8">
-                      <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                    <td className="py-3.5 px-6">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight border ${
                         trans.type === "BUY"
-                          ? "bg-green-50 text-green-600 border-green-100"
-                          : "bg-red-50 text-red-600 border-red-100"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                          : "bg-rose-50 text-rose-600 border-rose-100"
                       }`}>
                         {trans.type}
                       </span>
                     </td>
 
-                    <td className="py-6 px-8">
+                    <td className="py-3.5 px-6">
                       <div>
-                        <p className="font-black text-gray-900 leading-tight">₹{trans.totalAmount?.toLocaleString('en-IN')}</p>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase">{trans.quantity} units @ ₹{trans.price?.toLocaleString('en-IN')}</p>
+                        <p className="font-bold text-zinc-900 leading-tight text-sm">₹{trans.totalAmount?.toLocaleString('en-IN')}</p>
+                        <p className="text-[10px] text-zinc-400 font-medium">{trans.quantity} @ ₹{trans.price?.toLocaleString('en-IN')}</p>
                       </div>
                     </td>
 
-                    <td className="py-6 px-8 text-right">
+                    <td className="py-3.5 px-6 text-right">
                       <div className="flex flex-col items-end">
-                        <p className="text-xs font-black text-gray-900 mb-1">
+                        <p className="text-xs font-bold text-zinc-900 mb-0.5">
                           {new Date(trans.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
                         </p>
-                        <div className="flex items-center gap-1 text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
-                          <Clock size={12} />
+                        <div className="flex items-center gap-1 text-[10px] text-zinc-400 font-medium uppercase tracking-tight">
+                          <Clock size={10} />
                           {new Date(trans.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -113,12 +113,12 @@ const SystemConfig = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="py-24 text-center">
+                  <td colSpan="5" className="py-16 text-center">
                     <div className="flex flex-col items-center">
-                      <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                        <History size={32} className="text-gray-200" />
+                      <div className="w-12 h-12 bg-zinc-50 rounded-full flex items-center justify-center mb-3">
+                        <History size={24} className="text-zinc-200" />
                       </div>
-                      <p className="text-gray-400 font-black uppercase tracking-widest text-xs">Awaiting Market Activity</p>
+                      <p className="text-zinc-400 font-bold uppercase tracking-widest text-[10px]">No activity recorded</p>
                     </div>
                   </td>
                 </tr>

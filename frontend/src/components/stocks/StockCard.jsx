@@ -29,70 +29,68 @@ const StockCard = ({ stock }) => {
 
     return (
         <>
-            <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group relative overflow-hidden flex flex-col h-full">
-                {/* Decorative background element */}
-                <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20 ${isPositive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-
-                <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
+            <div className="bg-white rounded-xl p-5 border border-zinc-200 hover:border-zinc-300 transition-all duration-200 group relative overflow-hidden flex flex-col h-full shadow-sm">
+                
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-3">
                         {stock.logo ? (
-                            <img src={stock.logo} alt={stock.symbol} className="w-12 h-12 rounded-2xl object-contain bg-gray-50 p-1 border border-gray-100" />
+                            <img src={stock.logo} alt={stock.symbol} className="w-10 h-10 rounded-lg object-contain bg-zinc-50 p-1 border border-zinc-100" />
                         ) : (
-                            <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 border border-gray-100">
-                                <Globe size={24} />
+                            <div className="w-10 h-10 rounded-lg bg-zinc-50 flex items-center justify-center text-zinc-400 border border-zinc-100">
+                                <Globe size={18} />
                             </div>
                         )}
                         <div>
-                            <h3 className="text-xl font-black text-gray-900 tracking-tight">{stock.symbol}</h3>
-                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest truncate max-w-[120px]">{stock.stockName}</p>
+                            <h3 className="text-lg font-bold text-zinc-900 tracking-tight">{stock.symbol}</h3>
+                            <p className="text-[10px] font-medium text-zinc-400 uppercase tracking-widest truncate max-w-[100px]">{stock.stockName}</p>
                         </div>
                     </div>
-                    <div className={`p-2 rounded-xl ${isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                        {isPositive ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
+                    <div className={`p-2 rounded ${isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                        {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                     </div>
                 </div>
 
-                <div className="mb-6 flex-1">
+                <div className="mb-4 flex-1">
                     <div className="flex items-center justify-between mb-2">
-                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Performance</p>
-                        <div className={`flex items-center gap-1 text-[10px] font-black ${isPositive ? 'text-emerald-600' : 'text-rose-500'}`}>
-                            {isPositive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Performance</p>
+                        <div className={`flex items-center gap-1 text-[9px] font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-500'}`}>
+                            {isPositive ? <ArrowUpRight size={10} /> : <ArrowDownRight size={10} />}
                             {isPositive ? '+' : ''}{stock.priceChange?.toFixed(2)}
                         </div>
                     </div>
-                    <div className="h-24 -mx-2">
+                    <div className="h-20 -mx-1">
                         <StockChart stockId={stock._id} initialHistory={history} compact={true} />
                     </div>
                 </div>
 
-                <div className="flex items-end justify-between mb-6">
+                <div className="flex items-end justify-between mb-4">
                     <div>
-                        <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Market Price</p>
-                        <p className="text-2xl font-black text-gray-900 leading-none">₹{stock.price?.toLocaleString('en-IN')}</p>
+                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Price</p>
+                        <p className="text-xl font-bold text-zinc-900 leading-none">₹{stock.price?.toLocaleString('en-IN')}</p>
                     </div>
                     
                     <div className="flex gap-2">
                         <button 
                             onClick={() => openTrade('BUY')}
-                            className="bg-zinc-900 text-white px-5 py-2.5 rounded-xl text-[10px] font-black hover:bg-zinc-800 transition-all active:scale-95 uppercase tracking-wider shadow-lg shadow-zinc-200"
+                            className="bg-zinc-900 text-white px-4 py-1.5 rounded text-[10px] font-bold hover:bg-zinc-800 transition-colors uppercase tracking-wider shadow-sm"
                         >
                             Buy
                         </button>
                         <button 
                             onClick={() => openTrade('SELL')}
-                            className="bg-white text-zinc-900 border-2 border-zinc-100 px-5 py-2.5 rounded-xl text-[10px] font-black hover:border-zinc-900 transition-all active:scale-95 uppercase tracking-wider"
+                            className="bg-white text-zinc-900 border border-zinc-200 px-4 py-1.5 rounded text-[10px] font-bold hover:bg-zinc-50 transition-colors uppercase tracking-wider"
                         >
                             Sell
                         </button>
                     </div>
                 </div>
                 
-                <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
+                <div className="pt-3 border-t border-zinc-100 flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                        <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isPositive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stock.category || 'MARKET'}</span>
+                        <div className={`w-1 h-1 rounded-full ${isPositive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                        <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">{stock.category || 'MARKET'}</span>
                     </div>
-                    <Activity size={14} className="text-gray-200" />
+                    <Activity size={12} className="text-zinc-300" />
                 </div>
             </div>
 

@@ -32,22 +32,22 @@ const Admin = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="min-h-screen bg-zinc-50/50">
             {/* Sub-navigation for Admin Sections */}
-            <div className="bg-white border-b border-gray-100 sticky top-0 z-30 shadow-sm">
-                <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                    <div className="flex items-center gap-8 overflow-x-auto no-scrollbar py-1">
+            <div className="bg-white border-b border-zinc-200 sticky top-0 z-30">
+                <div className="max-w-7xl mx-auto px-4 lg:px-6">
+                    <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-0.5">
                         {tabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 py-5 px-2 border-b-2 transition-all font-black text-xs uppercase tracking-widest whitespace-nowrap ${
+                                className={`flex items-center gap-2 py-4 px-1 border-b-2 transition-all font-bold text-[10px] uppercase tracking-wider whitespace-nowrap ${
                                     activeTab === tab.id
-                                        ? 'border-black text-black'
-                                        : 'border-transparent text-gray-400 hover:text-gray-600'
+                                        ? 'border-zinc-900 text-zinc-900'
+                                        : 'border-transparent text-zinc-400 hover:text-zinc-600'
                                 }`}
                             >
-                                {tab.icon}
+                                {React.cloneElement(tab.icon, { size: 14 })}
                                 {tab.name}
                             </button>
                         ))}
@@ -55,7 +55,7 @@ const Admin = () => {
                 </div>
             </div>
 
-            <main className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <main className="animate-in fade-in duration-300">
                 {renderContent()}
             </main>
         </div>

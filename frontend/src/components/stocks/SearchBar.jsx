@@ -33,36 +33,36 @@ const SearchBar = ({ onSearch }) => {
     };
 
     return (
-        <div className="relative flex flex-col md:flex-row gap-4 mb-10">
+        <div className="relative flex flex-col md:flex-row gap-4 mb-8">
             <div className="relative flex-1 group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-zinc-900 transition-colors">
-                    <Search size={18} />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-900 transition-colors">
+                    <Search size={16} />
                 </div>
                 <input
                     type="text"
                     placeholder="Filter market by name or symbol..."
                     value={search}
                     onChange={handleSearchChange}
-                    className="block w-full pl-12 pr-12 py-4 border border-gray-100 rounded-[1.5rem] leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-zinc-50 focus:border-zinc-200 sm:text-sm transition-all shadow-sm"
+                    className="block w-full pl-10 pr-10 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-900 transition-all shadow-sm"
                 />
                 {search && (
                     <button 
                         onClick={() => { setSearch(''); onSearch({ search: '', category }); }}
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-300 hover:text-zinc-900 transition-colors"
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-zinc-300 hover:text-zinc-900 transition-colors"
                     >
-                        <X size={18} />
+                        <X size={16} />
                     </button>
                 )}
             </div>
 
-            <div className="relative w-full md:w-72">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
-                    <Filter size={16} />
+            <div className="relative w-full md:w-64">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+                    <Filter size={14} />
                 </div>
                 <select
                     value={category}
                     onChange={handleCategoryChange}
-                    className="block w-full pl-12 pr-10 py-4 border border-gray-100 rounded-[1.5rem] leading-5 bg-white focus:outline-none focus:ring-4 focus:ring-zinc-50 focus:border-zinc-200 sm:text-sm appearance-none transition-all shadow-sm font-black text-gray-900 cursor-pointer"
+                    className="block w-full pl-10 pr-10 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900 appearance-none transition-all shadow-sm font-bold text-zinc-900 cursor-pointer"
                 >
                     <option value="">All Categories</option>
                     {categories.map(cat => (

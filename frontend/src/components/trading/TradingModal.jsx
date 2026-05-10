@@ -56,34 +56,34 @@ const TradingModal = ({ stock, type, onClose, onRefresh }) => {
     const cantSell = type === 'SELL' && ownedQty === 0;
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-100 flex items-center justify-center p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
-                <div className="p-8">
-                    <div className="flex justify-between items-center mb-8">
-                        <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest ${
-                            type === 'BUY' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+        <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden border border-zinc-200 animate-in zoom-in-95 duration-200">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                            type === 'BUY' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
                         }`}>
                             Market {type} Order
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-                            <X size={20} />
+                        <button onClick={onClose} className="p-1.5 hover:bg-zinc-100 rounded-lg transition-colors text-zinc-400">
+                            <X size={16} />
                         </button>
                     </div>
 
-                    <div className="mb-8">
-                        <h3 className="text-3xl font-black text-gray-900 tracking-tight mb-1">{stock.symbol}</h3>
-                        <p className="text-gray-500 font-medium">{stock.stockName}</p>
+                    <div className="mb-6">
+                        <h3 className="text-xl font-bold text-zinc-900 tracking-tight leading-none mb-1.5">{stock.symbol}</h3>
+                        <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest">{stock.stockName}</p>
                     </div>
 
                     <div className="space-y-6">
-                        <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
+                        <div className="bg-zinc-50/50 p-5 rounded-lg border border-zinc-100">
                             <div className="flex justify-between items-center mb-4">
-                                <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Market Price</span>
-                                <span className="text-xl font-black text-gray-900">₹{stock.price?.toLocaleString('en-IN')}</span>
+                                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Market Price</span>
+                                <span className="text-lg font-bold text-zinc-900">₹{stock.price?.toLocaleString('en-IN')}</span>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Quantity to {type}</label>
+                                <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest ml-0.5">Quantity to {type}</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -93,46 +93,46 @@ const TradingModal = ({ stock, type, onClose, onRefresh }) => {
                                         const val = parseInt(e.target.value) || 0;
                                         setQuantity(type === 'SELL' ? Math.max(0, Math.min(val, maxSell)) : Math.max(0, val));
                                     }}
-                                    className="w-full bg-white border-2 border-gray-100 rounded-2xl px-5 py-4 focus:border-black transition-all outline-none font-black text-2xl text-center"
+                                    className="w-full bg-white border border-zinc-200 rounded-lg px-4 py-2.5 focus:ring-1 focus:ring-zinc-900 transition-all outline-none font-bold text-xl text-center shadow-inner"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-3 px-2">
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="font-bold text-gray-400">
-                                    {type === 'SELL' ? 'Total Sale Value' : 'Total Est. Cost'}
+                        <div className="space-y-2.5 px-1">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="font-bold text-zinc-400 uppercase tracking-widest text-[9px]">
+                                    {type === 'SELL' ? 'Est. Sale Value' : 'Est. Total Cost'}
                                 </span>
-                                <span className="font-black text-gray-900">₹{totalCost.toLocaleString('en-IN')}</span>
+                                <span className="font-bold text-zinc-900">₹{totalCost.toLocaleString('en-IN')}</span>
                             </div>
-                            <div className="flex justify-between items-center text-sm">
-                                <span className="flex items-center gap-1.5 font-bold text-gray-400">
-                                    <Wallet size={14} />
-                                    Available Balance
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="flex items-center gap-1.5 font-bold text-zinc-400 uppercase tracking-widest text-[9px]">
+                                    <Wallet size={12} />
+                                    Balance
                                 </span>
-                                <span className="font-black text-gray-900">₹{user?.balance?.toLocaleString('en-IN')}</span>
+                                <span className="font-bold text-zinc-900">₹{user?.balance?.toLocaleString('en-IN')}</span>
                             </div>
                             {type === 'SELL' && ownedQty !== null && (
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="flex items-center gap-1.5 font-bold text-gray-400">
-                                        <Layers size={14} />
-                                        Your Holdings
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="flex items-center gap-1.5 font-bold text-zinc-400 uppercase tracking-widest text-[9px]">
+                                        <Layers size={12} />
+                                        Holdings
                                     </span>
-                                    <span className="font-black text-gray-900">{ownedQty} shares</span>
+                                    <span className="font-bold text-zinc-900">{ownedQty} shares</span>
                                 </div>
                             )}
                         </div>
 
                         {type === 'BUY' && !isAffordable && (
-                            <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold flex items-center gap-2 border border-red-100">
-                                <Info size={16} />
+                            <div className="bg-rose-50 text-rose-600 p-3 rounded-lg text-[10px] font-bold flex items-center gap-2 border border-rose-100">
+                                <Info size={14} />
                                 Insufficient balance for this transaction.
                             </div>
                         )}
 
                         {type === 'SELL' && cantSell && (
-                            <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-xs font-bold flex items-center gap-2 border border-red-100">
-                                <Info size={16} />
+                            <div className="bg-rose-50 text-rose-600 p-3 rounded-lg text-[10px] font-bold flex items-center gap-2 border border-rose-100">
+                                <Info size={14} />
                                 You don't own this stock. Visit the Market to buy.
                             </div>
                         )}
@@ -140,28 +140,28 @@ const TradingModal = ({ stock, type, onClose, onRefresh }) => {
                         <button
                             onClick={handleTrade}
                             disabled={loading || (type === 'BUY' && !isAffordable) || (type === 'SELL' && cantSell)}
-                            className={`w-full py-5 rounded-3xl font-black text-lg shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 ${
+                            className={`w-full py-3.5 rounded-lg font-bold text-sm shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${
                                 type === 'BUY' 
-                                    ? 'bg-green-600 text-white shadow-green-200 hover:bg-green-700 disabled:bg-gray-200 disabled:shadow-none' 
-                                    : 'bg-red-500 text-white shadow-red-200 hover:bg-red-600 disabled:bg-gray-200 disabled:shadow-none'
+                                    ? 'bg-zinc-900 text-white hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:shadow-none' 
+                                    : 'bg-zinc-900 text-white hover:bg-zinc-800 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:shadow-none'
                             }`}
                         >
                             {loading ? (
-                                <div className="animate-spin rounded-full h-6 w-6 border-2 border-white/30 border-t-white"></div>
+                                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
                             ) : (
                                 <>
-                                    CONFIRM {type}
-                                    <ArrowRight size={20} />
+                                    Confirm {type}
+                                    <ArrowRight size={16} />
                                 </>
                             )}
                         </button>
                     </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 text-center border-t border-gray-100">
-                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-relaxed">
-                        By confirming, you agree to execute this market order at the current live price. 
-                        Trading involves risk.
+                <div className="bg-zinc-50/50 p-5 text-center border-t border-zinc-100">
+                    <p className="text-[9px] text-zinc-400 font-bold uppercase tracking-widest leading-relaxed px-4">
+                        Market orders are executed at the current live price. 
+                        Trading involves financial risk.
                     </p>
                 </div>
             </div>

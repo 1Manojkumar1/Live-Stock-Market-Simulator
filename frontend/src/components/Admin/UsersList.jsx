@@ -49,39 +49,42 @@ const UsersList = () => {
   }
 
   return (
-    <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-      <div className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-            <h3 className="text-xl font-black text-gray-900 tracking-tight uppercase">User Directory</h3>
-            <div className="bg-gray-100 px-4 py-1.5 rounded-full text-[10px] font-black text-gray-500 uppercase tracking-widest">
-                {users.length} Registered Traders
+    <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
+      <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/30">
+            <h3 className="text-sm font-bold text-zinc-900 tracking-tight uppercase flex items-center gap-2">
+                <User size={16} className="text-zinc-400" />
+                User Directory
+            </h3>
+            <div className="bg-zinc-100 px-3 py-1 rounded text-[10px] font-bold text-zinc-500 uppercase tracking-wider border border-zinc-200">
+                {users.length} Traders
             </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/30 border-b border-gray-100">
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">User Profile</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Current Status</th>
-                <th className="py-5 px-8 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Management</th>
+              <tr className="bg-zinc-50/50 border-b border-zinc-200">
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Profile</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-center">Status</th>
+                <th className="py-3 px-6 text-[10px] font-bold text-zinc-500 uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-zinc-100">
               {users.map((user) => (
-                <tr key={user._id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-all duration-200 group">
-                  <td className="py-6 px-8">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-black text-white rounded-2xl flex items-center justify-center font-black text-sm shadow-lg shadow-black/10 group-hover:scale-110 transition-transform">
+                <tr key={user._id} className="hover:bg-zinc-50/50 transition-colors group text-sm">
+                  <td className="py-3.5 px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-zinc-900 text-white rounded flex items-center justify-center font-bold text-xs">
                         {user.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-black text-gray-900 leading-tight text-base">{user.name}</p>
-                        <p className="text-xs text-gray-400 font-bold mt-0.5">{user.email}</p>
+                        <p className="font-bold text-zinc-900 leading-tight">{user.name}</p>
+                        <p className="text-[10px] text-zinc-400 font-medium">{user.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-6 px-8 text-center">
-                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                  <td className="py-3.5 px-6 text-center">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight border ${
                       user.status === 'blocked' 
                         ? 'bg-red-50 text-red-600 border-red-100' 
                         : 'bg-green-50 text-green-600 border-green-100'
@@ -89,13 +92,13 @@ const UsersList = () => {
                       {user.status || 'Active'}
                     </span>
                   </td>
-                  <td className="py-6 px-8 text-right">
+                  <td className="py-3.5 px-6 text-right">
                     <button
                       onClick={() => setSelectedUser(user)}
-                      className="inline-flex items-center gap-2 text-xs font-black text-black bg-white border-2 border-gray-100 hover:border-black px-5 py-2.5 rounded-2xl transition-all active:scale-95 shadow-sm"
+                      className="inline-flex items-center gap-1.5 text-[10px] font-bold text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-900 px-3 py-1.5 rounded transition-all active:scale-95 shadow-sm"
                     >
-                      <Eye size={16} />
-                      AUDIT ACCOUNT
+                      <Eye size={12} />
+                      AUDIT
                     </button>
                   </td>
                 </tr>
@@ -106,54 +109,54 @@ const UsersList = () => {
       </div>
 
       {selectedUser && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-300">
-            <div className="p-10">
-              <div className="flex justify-between items-start mb-10">
-                <div className="w-20 h-20 bg-black text-white rounded-[2rem] flex items-center justify-center text-3xl font-black shadow-2xl shadow-black/20">
+        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-zinc-200 animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-12 h-12 bg-zinc-900 text-white rounded-lg flex items-center justify-center text-xl font-bold shadow-sm">
                   {selectedUser.name.charAt(0)}
                 </div>
-                <button onClick={() => setSelectedUser(null)} className="p-3 hover:bg-gray-100 rounded-full transition-colors text-gray-400">
-                  <X size={28} />
+                <button onClick={() => setSelectedUser(null)} className="p-2 hover:bg-zinc-100 rounded-full transition-colors text-zinc-400">
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="space-y-8 mb-12">
+              <div className="space-y-6 mb-8">
                 <div>
-                  <h3 className="text-3xl font-black text-gray-900 tracking-tight mb-2">{selectedUser.name}</h3>
-                  <div className="flex items-center gap-2 text-gray-400 font-bold">
-                    <Mail size={18} />
+                  <h3 className="text-xl font-bold text-zinc-900 tracking-tight">{selectedUser.name}</h3>
+                  <div className="flex items-center gap-1.5 text-zinc-500 text-xs font-medium mt-1">
+                    <Mail size={14} />
                     {selectedUser.email}
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                    <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
-                      <Shield size={14} />
-                      Role Permissions
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-100">
+                    <div className="flex items-center gap-1.5 text-zinc-400 text-[9px] font-bold uppercase tracking-widest mb-1">
+                      <Shield size={12} />
+                      Permissions
                     </div>
-                    <p className="font-black text-gray-900 text-lg">{selectedUser.role}</p>
+                    <p className="font-bold text-zinc-900 text-sm capitalize">{selectedUser.role}</p>
                   </div>
-                  <div className="bg-gray-50 p-6 rounded-3xl border border-gray-100">
-                    <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest mb-2">
-                      <Wallet size={14} />
-                      Equity Balance
+                  <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-100">
+                    <div className="flex items-center gap-1.5 text-zinc-400 text-[9px] font-bold uppercase tracking-widest mb-1">
+                      <Wallet size={12} />
+                      Equity
                     </div>
-                    <p className="font-black text-gray-900 text-lg">₹{selectedUser.balance?.toLocaleString('en-IN') || 0}</p>
+                    <p className="font-bold text-zinc-900 text-sm">₹{selectedUser.balance?.toLocaleString('en-IN') || 0}</p>
                   </div>
                 </div>
               </div>
 
               <button
                 onClick={() => toggleBlockUser(selectedUser)}
-                className={`w-full flex items-center justify-center gap-3 font-black py-6 rounded-[2rem] transition-all active:scale-95 shadow-2xl text-base tracking-widest ${
+                className={`w-full flex items-center justify-center gap-2 font-bold py-3 rounded-lg transition-all active:scale-95 shadow-sm text-sm tracking-wide ${
                   selectedUser.status === 'blocked'
-                    ? 'bg-green-600 text-white shadow-green-200 hover:bg-green-700'
-                    : 'bg-red-600 text-white shadow-red-200 hover:bg-red-700'
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-200/50'
+                    : 'bg-rose-600 text-white hover:bg-rose-700 shadow-rose-200/50'
                 }`}
               >
-                {selectedUser.status === 'blocked' ? <Unlock size={24} /> : <Lock size={24} />}
+                {selectedUser.status === 'blocked' ? <Unlock size={18} /> : <Lock size={18} />}
                 {selectedUser.status === 'blocked' ? 'RESTORE ACCOUNT' : 'SUSPEND ACCOUNT'}
               </button>
             </div>
