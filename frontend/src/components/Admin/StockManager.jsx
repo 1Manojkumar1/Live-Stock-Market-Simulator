@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { Package, TrendingUp, Plus, RefreshCw, Layers, DollarSign, Activity, Tag, Trash2 } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import Loader from '../Loader';
 
+//stock component
 const StockManager = () => {
     const [stocks, setStocks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,30 +20,35 @@ const StockManager = () => {
         newPrice: '',
     });
 
+    //useEffect to fetch stocks
     useEffect(() => {
         fetchStocks();
     }, []);
 
-    const fetchStocks = async () => {
+    //function to fetch stocks
+    async function fetchStocks() {
         try {
             setLoading(true);
             const res = await api.get("/stock-api/stocks");
             setStocks(res.data.stocks);
-        } catch (err) {
+        } catch {
             toast.error("Failed to fetch stocks");
         } finally {
             setLoading(false);
         }
     };
 
+    //handle changes while adding a stock
     const handleNewStockChange = (e) => {
         setNewStock({ ...newStock, [e.target.name]: e.target.value });
     };
 
+    //handle changes
     const handleUpdateChange = (e) => {
         setUpdateData({ ...updateData, [e.target.name]: e.target.value });
     };
 
+    //function to add a stock
     const handleAddStock = async (e) => {
         e.preventDefault();
         try {
@@ -58,9 +64,11 @@ const StockManager = () => {
         }
     };
 
+    //function to update price
     const handleUpdatePrice = async (e) => {
         e.preventDefault();
         try {
+            // console.log(updateData);
             await api.put(`/stock-api/updateStock/${updateData.stockId}`, {
                 price: Number(updateData.newPrice)
             });
@@ -72,6 +80,7 @@ const StockManager = () => {
         }
     };
 
+    //loading state
     if (loading) {
         return (
             <div className="flex justify-center items-center py-40">
@@ -80,20 +89,26 @@ const StockManager = () => {
         );
     }
 
-    <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    // return component
+    return (
+        //container
+        <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-8">
+            //grid
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* CREATE ASSET */}
                 <div className="bg-white rounded-xl shadow-sm border border-zinc-200 p-6">
                     <div className="flex items-center gap-3 mb-8">
+                        {/* icon */}
                         <div className="p-2 bg-zinc-900 text-white rounded shadow-sm">
                             <Plus size={16} />
                         </div>
+                        {/* title */}
                         <div>
                             <h2 className="text-sm font-bold text-zinc-900 tracking-tight uppercase">Forge New Asset</h2>
                             <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-0.5">List a new company on the exchange</p>
                         </div>
                     </div>
-
+                    //form
                     <form onSubmit={handleAddStock} className="grid grid-cols-2 gap-4">
                         <div className="col-span-2">
                             <label className="block text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-1.5 ml-0.5">Unique Identifier</label>

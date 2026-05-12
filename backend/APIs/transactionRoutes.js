@@ -8,7 +8,8 @@ const transactionApp = exp.Router();
 
 //get all transactions (admin use — for user-specific, see userRoutes)
 transactionApp.get('/transactions', verifyToken('ADMIN'), async(req, res) => {
-  try {
+  try { 
+    //get all transactions
     const transactions = await transactionModel
       .find()
       .populate('userId', 'name email')

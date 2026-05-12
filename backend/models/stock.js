@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-
+//schema for stock
 const stockSchema = new Schema(
   {
     stockid: {

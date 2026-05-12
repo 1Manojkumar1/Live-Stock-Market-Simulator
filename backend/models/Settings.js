@@ -1,5 +1,5 @@
 import { Schema, model } from "mongoose";
-
+// schema for settings
 const settingsSchema = new Schema(
   {
     tradingEnabled: {

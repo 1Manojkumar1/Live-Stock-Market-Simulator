@@ -1,8 +1,11 @@
 import jwt from 'jsonwebtoken'
 import {config} from 'dotenv'
 const {verify}=jwt
-config()
+
+config() 
+//verify token
 export const verifyToken=(...allowedRoles)=>{
+    //middleware
 return (req,res,next)=>{
     try{
         //get token from cookie

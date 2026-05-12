@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Activity, Globe } from 'lucide-react';
 import TradingModal from '../trading/TradingModal';
+import StockDetailsModal from './StockDetailsModal';
 import StockChart from './StockChart';
 import api from '../../services/api';
 
 const StockCard = ({ stock }) => {
     const [showModal, setShowModal] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
     const [tradeType, setTradeType] = useState('BUY');
     const [history, setHistory] = useState([]);
     const isPositive = stock.priceChange >= 0;
@@ -22,14 +24,18 @@ const StockCard = ({ stock }) => {
         fetchHistory();
     }, [stock._id]);
 
-    const openTrade = (type) => {
+    const openTrade = (e, type) => {
+        if (e) e.stopPropagation();
         setTradeType(type);
         setShowModal(true);
     };
 
     return (
         <>
-            <div className="bg-white rounded-xl p-5 border border-zinc-200 hover:border-zinc-300 transition-all duration-200 group relative overflow-hidden flex flex-col h-full shadow-sm">
+            <div 
+                onClick={() => setShowDetails(true)}
+                className="bg-white rounded-xl p-5 border border-zinc-200 hover:border-zinc-300 transition-all duration-200 group relative overflow-hidden flex flex-col h-full shadow-sm cursor-pointer active:scale-[0.99] hover:shadow-md"
+            >
                 
                 <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
@@ -71,13 +77,13 @@ const StockCard = ({ stock }) => {
                     
                     <div className="flex gap-2">
                         <button 
-                            onClick={() => openTrade('BUY')}
+                            onClick={(e) => openTrade(e, 'BUY')}
                             className="bg-zinc-900 text-white px-4 py-1.5 rounded text-[10px] font-bold hover:bg-zinc-800 transition-colors uppercase tracking-wider shadow-sm"
                         >
                             Buy
                         </button>
                         <button 
-                            onClick={() => openTrade('SELL')}
+                            onClick={(e) => openTrade(e, 'SELL')}
                             className="bg-white text-zinc-900 border border-zinc-200 px-4 py-1.5 rounded text-[10px] font-bold hover:bg-zinc-50 transition-colors uppercase tracking-wider"
                         >
                             Sell
@@ -99,6 +105,12 @@ const StockCard = ({ stock }) => {
                     stock={stock} 
                     type={tradeType} 
                     onClose={() => setShowModal(false)} 
+                />
+            )}
+            {showDetails && (
+                <StockDetailsModal 
+                    stock={stock}
+                    onClose={() => setShowDetails(false)}
                 />
             )}
         </>

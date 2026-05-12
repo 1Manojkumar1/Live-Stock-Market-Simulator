@@ -91,49 +91,9 @@ const Watchlist = () => {
             </div>
             ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {watchlist.map((stock) => {
-                    const isPos = (stock.priceChange || 0) >= 0;
-                    return (
-                        <div key={stock._id} className="bg-white rounded-xl p-5 shadow-sm border border-zinc-200 hover:border-zinc-400 transition-all duration-200 group relative overflow-hidden">
-                            <div className="flex justify-between items-start mb-6">
-                                <div>
-                                    <h3 className="text-lg font-bold text-zinc-900 tracking-tight leading-none mb-1">{stock.symbol}</h3>
-                                    <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest truncate max-w-[140px]">{stock.stockName}</p>
-                                </div>
-                                <div className={`p-2 rounded ${isPos ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
-                                    {isPos ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-                                </div>
-                            </div>
-
-                            <div className="flex items-end justify-between mb-6">
-                                <div>
-                                    <p className="text-[9px] font-bold text-zinc-300 uppercase tracking-widest mb-0.5">LIVE PRICE</p>
-                                    <p className="text-2xl font-bold text-zinc-900 leading-none">₹{stock.price?.toLocaleString('en-IN')}</p>
-                                    <div className={`flex items-center gap-1 mt-1.5 text-xs font-bold ${isPos ? 'text-emerald-600' : 'text-rose-500'}`}>
-                                        {isPos ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                                        <span>{isPos ? '+' : ''}{stock.priceChange?.toFixed(2)}</span>
-                                        <span className="text-[10px] opacity-75">
-                                            ({stock.price > 0 ? ((stock.priceChange / (stock.price - stock.priceChange)) * 100).toFixed(2) : 0}%)
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest px-2 py-1 bg-zinc-50 rounded border border-zinc-100">{stock.category || 'MARKET'}</span>
-                                </div>
-                            </div>
-
-                            <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Live Feed</span>
-                                </div>
-                                <div className="text-zinc-200">
-                                    <Activity size={12} />
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                {watchlist.map((stock) => (
+                    <StockCard key={stock._id} stock={stock} />
+                ))}
             </div>
             )}
         </div>

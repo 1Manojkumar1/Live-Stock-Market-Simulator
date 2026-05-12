@@ -1,29 +1,33 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
-import { History, User, Mail, Activity, Clock, IndianRupee, ShieldCheck } from 'lucide-react';
+import { History, User, Clock, ShieldCheck } from 'lucide-react';
 import Loader from '../Loader';
 
+//system logs component
 const SystemConfig = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  //useEffect to fetch system logs
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     fetchTransactions();
   }, []);
 
+  //function to fetch system logs
   const fetchTransactions = async () => {
     try {
       setLoading(true);
       const res = await api.get("/admin-api/transactions");
       setTransactions(res.data.transactions);
     } catch (err) {
-      toast.error("Failed to fetch system logs");
+      toast.error("Failed to fetch system logs",err);
     } finally {
       setLoading(false);
     }
   };
-
+//render
   if (loading) {
     return (
       <div className="flex justify-center items-center py-40">
@@ -31,7 +35,7 @@ const SystemConfig = () => {
       </div>
     );
   }
-
+//render system logs table
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
       <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
@@ -78,7 +82,7 @@ const SystemConfig = () => {
                     <td className="py-3.5 px-6">
                       <div>
                         <p className="font-bold text-zinc-900 leading-tight">{trans.stockId?.symbol || 'N/A'}</p>
-                        <p className="text-[10px] text-zinc-400 font-medium truncate max-w-[120px]">{trans.stockId?.stockName || 'Unknown'}</p>
+                        <p className="text-[10px] text-zinc-400 font-medium truncate max-w-30">{trans.stockId?.stockName || 'Unknown'}</p>
                       </div>
                     </td>
 

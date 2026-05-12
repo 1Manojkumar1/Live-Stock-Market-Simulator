@@ -25,7 +25,7 @@ const io = new Server(server, {
 
 //make io accessible in routes via req.app.get('io')
 app.set('io', io)
-
+//middleware
 app.use(cookieParser())
 
 app.use(cors({
@@ -46,13 +46,13 @@ app.use("/stock-api",stockApp);
 //Socket.io connection handling
 io.on('connection', (socket) => {
     console.log('Client connected:', socket.id)
-
+ 
     //allow users to join their personal room for targeted alerts
     socket.on('joinRoom', (userId) => {
         socket.join(userId)
         console.log(`User ${userId} joined their room`)
     })
-
+//handle disconnection
     socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id)
     })
@@ -61,6 +61,7 @@ io.on('connection', (socket) => {
 //connect to DB
 const connectDB=async()=>{
     try{
+      //connect to DB
         await connect(process.env.DB_URL)
         console.log("DB connected")
         //start real-time price sync
@@ -92,12 +93,14 @@ app.use((err, req, res, next) => {
   if (err.name === "CastError") {
     return res.status(400).json({ message: "error occurred", error: err.message });
   }
+  //MongoError  
   const errCode = err.code ?? err.cause?.code ?? err.errorResponse?.code;
   const keyValue = err.keyValue ?? err.cause?.keyValue ?? err.errorResponse?.keyValue;
-
+//duplicate key
   if (errCode === 11000) {
     const field = Object.keys(keyValue)[0];
     const value = keyValue[field];
+    //send client side error
     return res.status(409).json({
       message: "error occurred",
       error: `${field} "${value}" already exists`,

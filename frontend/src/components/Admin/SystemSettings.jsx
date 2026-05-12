@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Settings, Save, ShieldAlert, CircleDollarSign, Percent, Construction, Edit3 } from 'lucide-react';
 import Loader from '../Loader';
 
+//system settings component
 const SystemSettings = () => {
     const [settings, setSettings] = useState({
         tradingEnabled: true,
@@ -15,10 +16,12 @@ const SystemSettings = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
+    // Fetch settings on mount and update state
     useEffect(() => {
         fetchSettings();
     }, []);
 
+    // Fetch settings from API and update state
     const fetchSettings = async () => {
         try {
             setLoading(true);
@@ -31,29 +34,33 @@ const SystemSettings = () => {
         }
     };
 
+    // Toggle settings
     const handleToggle = (field) => {
         if (!isEditing) return;
         setSettings({ ...settings, [field]: !settings[field] });
     };
 
+    // Handle changes
     const handleChange = (e) => {
         setSettings({ ...settings, [e.target.name]: Number(e.target.value) });
     };
 
+    // Save settings to API and update state on success
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
         try {
+            // setLoading and setSaving before making the API call
             setSaving(true);
             await api.put('/admin-api/settings', settings);
             toast.success("Global settings updated successfully");
             setIsEditing(false);
         } catch (err) {
-            toast.error("Failed to update settings");
+            toast.error("Failed to update settings",err);
         } finally {
             setSaving(false);
         }
     };
-
+     // Render the component
     if (loading) {
         return (
             <div className="flex justify-center items-center py-40">
@@ -61,7 +68,7 @@ const SystemSettings = () => {
             </div>
         );
     }
-
+    // Render the component
     return (
     <div className="p-4 lg:p-6 max-w-4xl mx-auto space-y-6">
         <div className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
@@ -75,13 +82,13 @@ const SystemSettings = () => {
                         <p className="text-zinc-400 text-[10px] font-bold uppercase tracking-widest mt-1">Global platform behavior & parameters</p>
                     </div>
                 </div>
-
-                <button 
+                {/* save button */}
+                <button
                     onClick={() => isEditing ? handleSubmit() : setIsEditing(true)}
                     disabled={saving}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-[10px] tracking-widest uppercase transition-all active:scale-95 shadow-sm border ${
-                        isEditing 
-                            ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800' 
+                        isEditing
+                            ? 'bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800'
                             : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-900 hover:text-zinc-900'
                     }`}
                 >

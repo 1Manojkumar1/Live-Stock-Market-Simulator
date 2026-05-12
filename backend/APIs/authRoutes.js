@@ -9,18 +9,21 @@ const {sign}=jwt
 //body parser middleware
 authApp.use(exp.json())
 
-
+//route for registration
 authApp.post('/register',async(req,res,next)=>{
     try{
         let allowedRoles=['ADMIN','TRADER']
         const {name,email,password,role}=req.body
+        //check if role is valid
         if(!allowedRoles.includes(role)){
             return res.status(400).json({message:'Invalid role'})
         }
+        //check if user already exists
         const user=await userModel.findOne({email})
         if(user){
             return res.status(400).json({message:'User already exists'})
         }
+        //hash password
         const hashedPassword=await hash(password,12)
         const newUserDocument=new userModel({name,email,password:hashedPassword,role})
         await newUserDocument.save()
@@ -35,6 +38,7 @@ authApp.post('/register',async(req,res,next)=>{
 //route for login
 authApp.post('/login',async(req,res,next)=>{
     try{
+        // check if user exists
         const {email,password}=req.body
         const user=await userModel.findOne({email})
         if(!user){
@@ -45,7 +49,7 @@ authApp.post('/login',async(req,res,next)=>{
         if(user.status === 'blocked'){
             return res.status(403).json({message:'Your account has been blocked. Contact admin.'})
         }
-
+          //check if password is correct
         const isPasswordValid=await compare(password,user.password)
         if(!isPasswordValid){
             return res.status(400).json({message:'Invalid password'})
@@ -84,7 +88,7 @@ authApp.post('/login',async(req,res,next)=>{
 //route for logout
 authApp.get('/logout',async(req,res,next)=>{
     try{
-        //try to update isLoggedIn if token is valid
+        //try to  update isLoggedIn if token is valid
         try{
             const token = req.cookies?.token
             if(token){
@@ -92,12 +96,14 @@ authApp.get('/logout',async(req,res,next)=>{
                 await userModel.findByIdAndUpdate(decoded.userId, {isLoggedIn: false})
             }
         }catch(e){
-            //token might be expired/invalid, still allow logout
+            //token might be expired/invalid, still allow logout 
+            console.log(e) 
         }
 
         res.clearCookie('token')
         return res.status(200).json({message:'Logout successful'})
-    }
+    } 
+    //catch if token is invalid
     catch(err){
         console.log("Logout error:", err.message)
         next(err)
@@ -107,11 +113,12 @@ authApp.get('/logout',async(req,res,next)=>{
 // route to get current user data from token
 import { verifyToken } from '../middlewares/verifyToken.js'
 authApp.get('/me', verifyToken('TRADER', 'ADMIN'), async(req, res) => {
-    try {
+    try { 
+        // check if user exists
         const user = await userModel.findById(req.user.userId).select('-password');
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }
+        } 
         res.json({ user });
     } catch (error) {
         res.status(500).json({ message: "Error fetching user data", error: error.message });

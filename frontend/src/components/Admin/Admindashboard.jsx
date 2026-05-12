@@ -3,7 +3,31 @@ import api from "../../services/api";
 import {Users, UserCheck, UserMinus, UserX, Activity, Search } from 'lucide-react';
 import Loader from '../Loader';
 
-function AdminDashboard({ }) {
+const StatCard = ({ title, value, icon: Icon, color, isActive, onClick }) => (
+  <div 
+    onClick={onClick}
+    className={`p-5 rounded-xl border transition-all duration-200 group cursor-pointer ${
+      isActive
+        ? 'bg-zinc-900 text-white border-zinc-900' 
+        : 'bg-white text-zinc-900 border-zinc-200 hover:border-zinc-300 hover:shadow-sm'
+    }`}
+  >
+    <div className="flex justify-between items-center">
+      <div className={`p-3 rounded-lg transition-transform group-hover:scale-105 ${
+          isActive ? 'bg-white/10 text-white' : `${color} text-white`
+      }`}>
+        <Icon size={20} />
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5 text-zinc-400 group-hover:text-zinc-500 transition-colors">{title}</p>
+        <h3 className="text-2xl font-bold leading-none">{value}</h3>
+      </div>
+    </div>
+  </div>
+);
+
+//AdminDashboard component
+function AdminDashboard() {
   const [data, setData] = useState({
     stats: {
       totalUsers: 0,
@@ -12,16 +36,23 @@ function AdminDashboard({ }) {
     },
     users: []
   });
+  //set loading state
   const [loading, setLoading] = useState(true);
+  //set active filter
   const [activeFilter, setActiveFilter] = useState('all');
+  //set search query
   const [searchQuery, setSearchQuery] = useState('');
 
+  //fetch stats on component mount and update state on success
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     fetchStats();
   }, []);
 
+  //fetch stats from API and update state on success
   const fetchStats = async () => {
     try {
+      // setLoading
       setLoading(true);
       const res = await api.get("/admin-api/dashboard");
       setData(res.data);
@@ -32,7 +63,10 @@ function AdminDashboard({ }) {
     }
   };
 
+  //function to get filtered users based on active filter and search query
   const getFilteredUsers = () => {
+
+    // Filter users
     let filtered = data.users;
     
     // Category filter
@@ -54,9 +88,10 @@ function AdminDashboard({ }) {
 
     return filtered;
   };
-
+//render component
   const filteredUsers = getFilteredUsers();
 
+  // StatCard component
   const StatCard = ({ title, value, icon: Icon, color, filterKey }) => (
     <div 
       onClick={() => setActiveFilter(filterKey)}
@@ -92,7 +127,7 @@ function AdminDashboard({ }) {
     <div className="p-4 lg:p-8 max-w-7xl mx-auto space-y-10">
       {/* TOP STATS */}
       <div className="w-full overflow-x-auto pb-4">
-        <div className="flex gap-4 lg:gap-8 min-w-[800px] lg:min-w-full">
+        <div className="flex gap-4 lg:gap-8 min-w-200 lg:min-w-full">
           <div className="flex-1"><StatCard title="Total Traders" value={data.stats.totalUsers} icon={Users} color="bg-blue-600" filterKey="all" /></div>
           <div className="flex-1"><StatCard title="Active Now" value={data.stats.loggedInUsers} icon={UserCheck} color="bg-green-500" filterKey="active" /></div>
           <div className="flex-1"><StatCard title="Idle Accounts" value={data.stats.loggedOutUsers} icon={UserMinus} color="bg-orange-500" filterKey="idle" /></div>

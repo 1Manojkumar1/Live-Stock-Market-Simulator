@@ -7,6 +7,24 @@ import fetch from 'node-fetch';
 
 const stockApp = exp.Router();
 
+// Helper to generate mock historical data for new stocks
+const generateMockHistory = (basePrice, count = 20) => {
+    const history = [];
+    const now = Date.now(); 
+    // Generate mock data
+    for (let i = count; i >= 0; i--) {
+        // Random fluctuation between -3% and +3% for a more visible curve 
+        // (0.03 = 3%)
+        const fluctuation = 1 + (Math.random() * 0.06 - 0.03);
+        const price = Number((basePrice * fluctuation).toFixed(2));
+        history.push({
+            price,
+            timestamp: new Date(now - i * 60000) // 1 minute intervals
+        });
+    }
+    return history;
+};
+
 //get all stocks (with optional search & filter)
 stockApp.get("/stocks", async (req, res) => {
   try {
@@ -29,14 +47,15 @@ stockApp.get("/stocks", async (req, res) => {
       if (minPrice) filter.price.$gte = Number(minPrice);
       if (maxPrice) filter.price.$lte = Number(maxPrice);
     }
-
+      //get stocks
     const stocks = await stockModel.find(filter);
     res.json({
       message: "Stocks fetched successfully",
       count: stocks.length,
       stocks,
-    });
-  } catch (error) {
+    }); 
+  } catch (error) { 
+    //error
     console.log(error.message);
     res.status(500).json({ message: "Error fetching stocks", error });
   }
@@ -44,20 +63,23 @@ stockApp.get("/stocks", async (req, res) => {
 
 //get single stock detail
 stockApp.get("/stocks/:id", async (req, res) => {
-  try {
+  try { 
+    //get stock
     const stock = await stockModel.findById(req.params.id);
     if (!stock) {
       return res.status(404).json({ message: "Stock not found" });
     }
     res.json({ message: "Stock fetched successfully", stock });
   } catch (error) {
+    //  error
     res.status(500).json({ message: "Error fetching stock", error: error.message });
   }
 });
 
 //get stock price history (for charts)
 stockApp.get("/stocks/:id/history", async (req, res) => {
-  try {
+  try { 
+    //get stock
     const stock = await stockModel.findById(req.params.id).select("stockName symbol priceHistory");
     if (!stock) {
       return res.status(404).json({ message: "Stock not found" });
@@ -68,29 +90,33 @@ stockApp.get("/stocks/:id/history", async (req, res) => {
       symbol: stock.symbol,
       priceHistory: stock.priceHistory
     });
-  } catch (error) {
+  } catch (error) { 
+    //error
     res.status(500).json({ message: "Error fetching price history", error: error.message });
   }
 });
 
 //add new stock (admin only)
 stockApp.post("/addStock", verifyToken("ADMIN"), async (req, res) => {
-  try {
+  try { 
+    //add stock
     const { stockid, stockName, symbol, price, category } = req.body;
     if (!stockName || !stockid || !symbol || !price) {
       return res.status(400).json({ message: "All fields required" });
     }
+    //check if stock already exists
     const existing = await stockModel.findOne({ symbol });
     if (existing) {
       return res.status(400).json({ message: "Stock already exists" });
     }
+    //create stock
     const stock = await stockModel.create({
       stockid,
       stockName,
       symbol,
       price,
       category: category || "General",
-      priceHistory: [{ price, timestamp: new Date() }]
+      priceHistory: generateMockHistory(price)
     });
     res.status(201).json({ message: "Stock added successfully", stock });
   } catch (error) {
@@ -103,7 +129,7 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
   try {
     const { id } = req.params;
     const { price } = req.body;
-
+    //get stock
     const stock = await stockModel.findById(id);
     if (!stock) {
       return res.status(404).json({ message: "Stock not found" });
@@ -173,6 +199,7 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
       alertsTriggered: triggeredAlerts.length
     });
   } catch (error) {
+    //error
     console.log(error.message);
     res.status(500).json({
       message: "Error updating stock",
@@ -182,9 +209,11 @@ stockApp.put("/updateStock/:id", verifyToken("ADMIN"), async (req, res) => {
 });
 
 // Helper to fetch a live price from Finnhub
-const getFinnhubQuote = async (symbol) => {
+const getFinnhubQuote = async (symbol) => { 
+  //fetch from finnhub
     const apiKey = process.env.FINNHUB_API_KEY;
-    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`;
+    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`; 
+    //const url = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Finnhub request failed with status ${response.status}`);
@@ -194,7 +223,8 @@ const getFinnhubQuote = async (symbol) => {
 
 // route: GET real-time external price for a symbol (optional check)
 stockApp.get('/external-price/:symbol', async (req, res) => {
-    try {
+    try { 
+        //fetch from finnhub
         const data = await getFinnhubQuote(req.params.symbol);
         res.json(data);
     } catch (err) {
@@ -207,7 +237,7 @@ stockApp.get('/search-external', async (req, res) => {
     try {
         const { q } = req.query;
         if (!q) return res.status(400).json({ message: "Search query required" });
-
+        //fetch from finnhub
         const apiKey = process.env.FINNHUB_API_KEY;
         const response = await fetch(`https://finnhub.io/api/v1/search?q=${encodeURIComponent(q)}&token=${apiKey}`);
         const data = await response.json();
@@ -251,7 +281,7 @@ stockApp.post('/bootstrap-stock', verifyToken("TRADER"), async (req, res) => {
             priceChange: quoteData.d || 0,
             category: profileData.finnhubIndustry || "General",
             logo: profileData.logo,
-            priceHistory: [{ price: quoteData.c, timestamp: new Date() }]
+            priceHistory: generateMockHistory(quoteData.c)
         });
 
         res.status(201).json({ message: "Stock bootstrapped successfully", stock });
@@ -262,7 +292,8 @@ stockApp.post('/bootstrap-stock', verifyToken("TRADER"), async (req, res) => {
 
 // route: GET unique categories from tracked stocks
 stockApp.get('/categories', async (req, res) => {
-    try {
+    try { 
+      //fetch from finnhub 
         const categories = await stockModel.distinct('category');
         res.json({ categories });
     } catch (err) {

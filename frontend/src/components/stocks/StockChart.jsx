@@ -33,9 +33,12 @@ const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
             data: [],
             borderColor: '#18181b',
             backgroundColor: 'rgba(24, 24, 27, 0.05)',
-            tension: 0.4,
+            tension: 0.45,
+            cubicInterpolationMode: 'monotone',
             pointRadius: 0,
             fill: true,
+            borderCapStyle: 'round',
+            borderJoinStyle: 'round'
         }]
     });
 
@@ -49,7 +52,8 @@ const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
                     data: initialHistory.map(h => h.price),
                     borderColor: '#18181b',
                     backgroundColor: 'rgba(24, 24, 27, 0.05)',
-                    tension: 0.4,
+                    tension: 0.45,
+                    cubicInterpolationMode: 'monotone',
                     pointRadius: 0,
                     fill: true,
                 }]
@@ -71,13 +75,15 @@ const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
                         newData.shift();
                     }
 
+                    const priceChange = update.priceChange ?? (update.newPrice - prev.datasets[0].data[prev.datasets[0].data.length - 1]);
+
                     return {
                         labels: newLabels,
                         datasets: [{
                             ...prev.datasets[0],
                             data: newData,
-                            borderColor: update.priceChange < 0 ? '#f43f5e' : '#10b981',
-                            backgroundColor: update.priceChange < 0 ? 'rgba(244, 63, 94, 0.05)' : 'rgba(16, 185, 129, 0.05)',
+                            borderColor: priceChange < 0 ? '#f43f5e' : '#10b981',
+                            backgroundColor: priceChange < 0 ? 'rgba(244, 63, 94, 0.05)' : 'rgba(16, 185, 129, 0.05)',
                         }]
                     };
                 });
@@ -103,8 +109,40 @@ const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
             },
         },
         scales: {
-            x: { display: !compact, grid: { display: false } },
-            y: { display: !compact, grid: { color: '#f4f4f5' }, beginAtZero: false }
+            x: { 
+                display: !compact, 
+                grid: { display: false },
+                ticks: { maxRotation: 0, font: { size: 10 } }
+            },
+            y: { 
+                display: !compact, 
+                grid: { color: '#f4f4f5' }, 
+                beginAtZero: false,
+                ticks: {
+                    font: { size: 10 },
+                    callback: (val) => '₹' + val.toLocaleString()
+                },
+                // Strictly zoom in on the data range to force curved visualization
+                min: (context) => {
+                    const data = context.chart.data.datasets[0].data;
+                    if (data.length < 2) return undefined;
+                    const min = Math.min(...data);
+                    const max = Math.max(...data);
+                    const range = max - min;
+                    // If flat, give it a tiny range to avoid division by zero or default scaling
+                    if (range === 0) return min - 1;
+                    return min - (range * 0.1); 
+                },
+                max: (context) => {
+                    const data = context.chart.data.datasets[0].data;
+                    if (data.length < 2) return undefined;
+                    const min = Math.min(...data);
+                    const max = Math.max(...data);
+                    const range = max - min;
+                    if (range === 0) return max + 1;
+                    return max + (range * 0.1);
+                }
+            }
         },
         elements: {
             line: {

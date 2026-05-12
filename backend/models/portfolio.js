@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import mongoose from "mongoose";
-
+// sechema for portfolio 
 const portfolioSchema = new Schema(
   {
     userId: {

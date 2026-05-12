@@ -1,46 +1,59 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { User, Mail, Shield, Wallet, Lock, Unlock, Eye, X } from 'lucide-react';
 import Loader from '../Loader';
 
+//usersList component
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
 
+  //fetch users on component mount and update state on success
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/immutability
     fetchUsers();
   }, []);
 
+  //fetch users from API and update state
   const fetchUsers = async () => {
     try {
+      // setLoading
       setLoading(true);
       const res = await api.get("/admin-api/users");
       setUsers(res.data.users);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch users");
     } finally {
       setLoading(false);
     }
   };
 
+  //toggle block/unblock user and update state on success
   const toggleBlockUser = async (user) => {
+    //update user status
     const isBlocked = user.status === 'blocked';
+    //update user status
     const endpoint = `/admin-api/users/${user._id}/${isBlocked ? 'unblock' : 'block'}`;
     
     try {
+      // setLoading
       await api.patch(endpoint);
+      //update user status
       toast.success(`User ${isBlocked ? 'unblocked' : 'blocked'} successfully`);
       fetchUsers();
+      //update selected user
       if (selectedUser && selectedUser._id === user._id) {
+        //update selected user
         setSelectedUser({ ...user, status: isBlocked ? 'active' : 'blocked' });
       }
-    } catch (err) {
+    } catch {
       toast.error(`Failed to ${isBlocked ? 'unblock' : 'block'} user`);
     }
   };
 
+  //render component
   if (loading) {
     return (
       <div className="flex justify-center items-center py-40">
@@ -48,7 +61,7 @@ const UsersList = () => {
       </div>
     );
   }
-
+//render component
   return (
     <div className="p-4 lg:p-6 max-w-7xl mx-auto space-y-6">
       <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
@@ -110,7 +123,7 @@ const UsersList = () => {
       </div>
 
       {selectedUser && (
-        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-zinc-900/40 backdrop-blur-sm z-100 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-zinc-200 animate-in zoom-in-95 duration-200">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">

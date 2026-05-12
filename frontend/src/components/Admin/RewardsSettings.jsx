@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 import { Gift, Save, Edit3, Clock, Trophy, Medal, Calendar } from 'lucide-react';
 import Loader from '../Loader';
 
-
+// Admin rewards settings
 const RewardsSettings = () => {
     const [settings, setSettings] = useState({});
     const [isEditing, setIsEditing] = useState(false);
@@ -12,12 +12,11 @@ const RewardsSettings = () => {
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('weekly'); 
 
-    useEffect(() => {
-        fetchSettings();
-    }, []);
 
+    // Fetch settings
     const fetchSettings = async () => {
         try {
+            // setLoading
             setLoading(true);
             const res = await api.get("/admin-api/settings");
             setSettings(res.data);
@@ -27,13 +26,21 @@ const RewardsSettings = () => {
             setLoading(false);
         }
     };
+    // Fetch settings
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchSettings();
+    }, []);
 
+// Save settings to API and update state on success
     const handleSave = async () => {
         try {
+            // setLoading and setSaving before making the API call
             setSaving(true);
             await api.put("/admin-api/settings", settings);
             setIsEditing(false);
             toast.success("Reward settings updated successfully!");
+        // eslint-disable-next-line no-unused-vars
         } catch (err) {
             toast.error("Failed to update settings");
         } finally {
@@ -41,6 +48,7 @@ const RewardsSettings = () => {
         }
     };
 
+    // Check if loading is true
     if (loading) {
         return (
             <div className="flex justify-center items-center py-40">
@@ -49,11 +57,13 @@ const RewardsSettings = () => {
         );
     }
 
+    // Days of the week array for dropdown menu
     const weekDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
     // Helper to get nested values with defaults
     const getVal = (key, def) => settings[key] ?? def;
 
+    // Render the component
     return (
     <div className="max-w-5xl mx-auto p-4 lg:p-6 space-y-6">
         <div className="bg-white rounded-xl p-6 border border-zinc-200 shadow-sm">

@@ -12,12 +12,15 @@ const userApp = exp.Router();
 
 //get user profile
 userApp.get('/users/:id', verifyToken('TRADER'), async(req, res) => {
-    try {
-        const id = req.params.id;
-        const user = await userModel.findById(id).select('-password');
+    try { 
+        //console.log(req.params.id);
+        const id = req.params.id; 
+       // console.log(id);
+        const user = await userModel.findById(id).select('-password'); 
+        //console.log(user);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }
+        } 
         res.send(user);
     } catch (error) {
         res.status(500).json({ message: "Error fetching user", error: error.message });
@@ -26,12 +29,13 @@ userApp.get('/users/:id', verifyToken('TRADER'), async(req, res) => {
 
 //get user balance
 userApp.get('/users/balance/:id', verifyToken('TRADER'), async(req, res) => {
-    try {
+    try { 
+        //console.log(req.params.id);
         const id = req.params.id;
         const user = await userModel.findById(id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }
+        } 
         res.send({ balance: user.balance });
     } catch (error) {
         res.status(500).json({ message: "Error fetching balance", error: error.message });
@@ -43,7 +47,8 @@ userApp.put('/users/:id', verifyToken('TRADER'), async(req, res) => {
     try {
         const id = req.params.id;
         const { name, email } = req.body;
-        const user = await userModel.findByIdAndUpdate(id, { name, email }, { new: true }).select('-password');
+        const user = await userModel.findByIdAndUpdate(id, { name, email }, { new: true }).select('-password'); 
+        //console.log(user);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -58,20 +63,21 @@ userApp.put('/users/change-password/:id', verifyToken('TRADER'), async(req, res)
     try {
         const id = req.params.id;
         const { currentPassword, newPassword } = req.body;
-        
+        //console.log(currentPassword, newPassword);
         if (!currentPassword || !newPassword) {
             return res.status(400).json({ message: "Both current and new passwords are required" });
         }
-
+      //  console.log(id);
         const user = await userModel.findById(id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
-        }
+        }// console.log(user); 
 
         const isMatch = await compare(currentPassword, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Incorrect current password" });
         }
+        //console.log(isMatch);
 
         const hashedPassword = await hash(newPassword, 12);
         user.password = hashedPassword;
@@ -92,7 +98,7 @@ userApp.put('/users/change-password/:id', verifyToken('TRADER'), async(req, res)
 userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
     try {
         const { userId, stockId, quantity } = req.body;
-
+       // console.log(userId, stockId, quantity);
         if (!userId || !stockId || !quantity || quantity <= 0) {
             return res.status(400).json({ message: "userId, stockId, and a positive quantity are required" });
         }
@@ -104,7 +110,7 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
         if (settings && settings.maintenanceMode) {
             return res.status(503).json({ message: "System is under maintenance. Try again later." });
         }
-
+            // console.log(settings);
         const stock = await stockModel.findById(stockId);
         if (!stock) {
             return res.status(404).json({ message: "Stock not found" });
@@ -116,6 +122,7 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+        // checks whether user has enough balance
         if (user.balance < totalCost) {
             return res.status(400).json({
                 message: "Insufficient balance",
@@ -128,7 +135,7 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
         await user.save();
 
         let portfolio = await portfolioModel.findOne({ userId, stockId });
-
+  //      console.log(portfolio);
         if (portfolio) {
             const totalOldValue = portfolio.avgBuyPrice * portfolio.quantity;
             const totalNewValue = stock.price * quantity;
@@ -136,7 +143,8 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
             portfolio.avgBuyPrice = (totalOldValue + totalNewValue) / newTotalQuantity;
             portfolio.quantity = newTotalQuantity;
             await portfolio.save();
-        } else {
+        } else { 
+                //console.log(portfolio);
             portfolio = await portfolioModel.create({
                 userId,
                 stockId,
@@ -144,7 +152,7 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
                 avgBuyPrice: stock.price
             });
         }
-
+         //console.log(portfolio);
         const transaction = await transactionModel.create({
             userId,
             stockId,
@@ -166,7 +174,7 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
     }
 });
 
-//sell stock
+//sell stock 
 userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
     try {
         const { userId, stockId, quantity } = req.body;
@@ -191,7 +199,8 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
         const portfolio = await portfolioModel.findOne({ userId, stockId });
         if (!portfolio) {
             return res.status(400).json({ message: "You don't own this stock" });
-        }
+        } 
+        // checks whether user has enough shares
         if (portfolio.quantity < quantity) {
             return res.status(400).json({
                 message: "Insufficient shares",
@@ -199,10 +208,10 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
                 available: portfolio.quantity
             });
         }
-
+//        console.log(portfolio);
         const saleAmount = stock.price * quantity;
         const profit = saleAmount - (portfolio.avgBuyPrice * quantity);
-
+        // Update balance
         const user = await userModel.findById(userId);
         user.balance += saleAmount;
         
@@ -210,9 +219,9 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
         user.weeklyScore = (user.weeklyScore || 0) + profit;
         user.monthlyScore = (user.monthlyScore || 0) + profit;
         user.totalProfit = (user.totalProfit || 0) + profit;
-
+          //console.log(user);
         await user.save();
-
+//        console.log(user);
         if (portfolio.quantity === quantity) {
             await portfolioModel.deleteOne({ _id: portfolio._id });
         } else {
@@ -220,7 +229,7 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
             await portfolio.save();
         }
 
-
+        // Create transaction
         const transaction = await transactionModel.create({
             userId,
             stockId,
@@ -229,7 +238,7 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
             price: stock.price,
             totalAmount: saleAmount
         });
-
+        //console.log(transaction);
         res.status(200).json({
             message: "Stock sold successfully",
             transaction,
@@ -247,19 +256,19 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
 userApp.post('/add-funds', verifyToken('TRADER'), async(req, res) => {
     try {
         const { userId, amount } = req.body;
-
+        //console.log(userId, amount);
         if (!userId || !amount || amount <= 0) {
             return res.status(400).json({ message: "userId and a positive amount are required" });
         }
-
+//        console.log(userId, amount);
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
+//        console.log(user);
         user.balance += amount;
         await user.save();
-
+        //console.log(user);
         res.json({
             message: "Funds added successfully",
             addedAmount: amount,
@@ -283,12 +292,13 @@ userApp.get('/portfolio/:userId', verifyToken('TRADER'), async(req, res) => {
 
         //calculate P/L for each stock
         const portfolioWithPL = portfolio.map(item => {
+            //console.log(item);
             const currentPrice = item.stockId?.price || 0;
             const currentValue = currentPrice * item.quantity;
             const investedValue = item.avgBuyPrice * item.quantity;
             const profitLoss = currentValue - investedValue;
             const profitLossPercent = investedValue > 0 ? ((profitLoss / investedValue) * 100).toFixed(2) : 0;
-
+          
             return {
                 _id: item._id,
                 stock: item.stockId,
@@ -305,7 +315,7 @@ userApp.get('/portfolio/:userId', verifyToken('TRADER'), async(req, res) => {
         const totalInvested = portfolioWithPL.reduce((sum, item) => sum + item.investedValue, 0);
         const totalCurrentValue = portfolioWithPL.reduce((sum, item) => sum + item.currentValue, 0);
         const totalProfitLoss = totalCurrentValue - totalInvested;
-
+        //console.log(totalProfitLoss);
         res.json({
             message: "Portfolio fetched successfully",
             portfolio: portfolioWithPL,
@@ -325,12 +335,14 @@ userApp.get('/portfolio/:userId', verifyToken('TRADER'), async(req, res) => {
 //get user transaction history
 userApp.get('/transactions/:userId', verifyToken('TRADER'), async(req, res) => {
     try {
+        //console.log(req.params);
         const { userId } = req.params;
+        //console.log(userId);
         const transactions = await transactionModel
             .find({ userId })
             .populate('stockId', 'stockName symbol')
             .sort({ createdAt: -1 });
-
+//        console.log(transactions);
         res.json({
             message: "Transaction history fetched successfully",
             count: transactions.length,
@@ -368,7 +380,7 @@ userApp.get('/dashboard/:userId', verifyToken('TRADER'), async(req, res) => {
             const investedValue = item.avgBuyPrice * item.quantity;
             totalInvested += investedValue;
             totalCurrentValue += currentValue;
-
+            //console.log(item);
             return {
                 stock: item.stockId,
                 quantity: item.quantity,
@@ -420,11 +432,11 @@ userApp.get('/watchlist/:userId', verifyToken('TRADER'), async(req, res) => {
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-
+//        console.log(user);
         const portfolio = await portfolioModel
             .find({ userId, quantity: { $gt: 0 } })
             .populate('stockId', 'stockName symbol price priceChange category');
-
+//        console.log(portfolio);
         const watchlist = portfolio
             .filter(p => p.stockId)
             .map(p => ({
@@ -456,6 +468,7 @@ userApp.get('/watchlist/:userId', verifyToken('TRADER'), async(req, res) => {
 userApp.get('/alerts/:userId', verifyToken('TRADER'), async(req, res) => {
     try {
         const { userId } = req.params;
+        //console.log(userId);
         const alerts = await alertModel
             .find({ userId })
             .populate('stockId', 'stockName symbol price')
@@ -480,13 +493,14 @@ userApp.get('/alerts/:userId', verifyToken('TRADER'), async(req, res) => {
 
 //create a new price alert
 userApp.post('/alerts', verifyToken('TRADER'), async(req, res) => {
-    try {
+    try { 
+        
         const { userId, stockId, targetPrice, direction } = req.body;
 
         if (!userId || !stockId || !targetPrice || !direction) {
             return res.status(400).json({ message: "userId, stockId, targetPrice, and direction (ABOVE/BELOW) are required" });
         }
-
+        //check direction
         if (!["ABOVE", "BELOW"].includes(direction)) {
             return res.status(400).json({ message: "direction must be ABOVE or BELOW" });
         }
@@ -508,11 +522,11 @@ userApp.post('/alerts', verifyToken('TRADER'), async(req, res) => {
         if (existing) {
             return res.status(400).json({ message: "You already have an identical active alert" });
         }
-
+        //create alert
         const alert = await alertModel.create({
             userId, stockId, targetPrice, direction
         });
-
+         //console.log(alert);
         res.status(201).json({
             message: `Alert created: notify when ${stock.symbol} goes ${direction.toLowerCase()} ₹${targetPrice}`,
             alert
@@ -525,9 +539,10 @@ userApp.post('/alerts', verifyToken('TRADER'), async(req, res) => {
 //delete an alert
 userApp.delete('/alerts/:alertId', verifyToken('TRADER'), async(req, res) => {
     try {
+        //console.log(req.params);
         const { alertId } = req.params;
         const alert = await alertModel.findByIdAndDelete(alertId);
-
+//        console.log(alert);
         if (!alert) {
             return res.status(404).json({ message: "Alert not found" });
         }
@@ -544,7 +559,8 @@ userApp.delete('/alerts/:alertId', verifyToken('TRADER'), async(req, res) => {
 
 // Helper to calculate a user's current net worth (balance + holdings).
 const calculateNetWorth = (user, userPortfolios) => {
-    let holdingsValue = 0;
+    let holdingsValue = 0; 
+    //console.log(userPortfolios);
     if (userPortfolios) {
         userPortfolios.forEach(item => {
             if (item.stockId && item.stockId.price) {
@@ -564,7 +580,7 @@ userApp.get('/leaderboard', async (req, res) => {
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - now.getDay());
         startOfWeek.setHours(0, 0, 0, 0);
-
+        //console.log(startOfWeek);
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
         startOfMonth.setHours(0, 0, 0, 0);
 
@@ -597,7 +613,7 @@ userApp.get('/leaderboard', async (req, res) => {
         let baseField = 'totalDeposited'; // default for all‑time
         if (period === 'weekly') baseField = 'weeklyNetWorthSnapshot';
         if (period === 'monthly') baseField = 'monthlyNetWorthSnapshot';
-
+       
         const traders = await userModel
             .find({ role: "TRADER" })
             .select(`name email balance ${baseField} totalDeposited`)

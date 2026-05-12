@@ -1,12 +1,16 @@
+import { stockModel } from "../models/stock.js";
+import fetch from "node-fetch";
+// Rate limits
 export const apiStatus = {
     remaining: 60,
     limit: 60,
     reset: 0,
     lastUpdate: Date.now()
 };
-
+// Get quote
 const getFinnhubQuote = async (symbol) => {
     const apiKey = process.env.FINNHUB_API_KEY;
+    // https://finnhub.io/docs/api/quote
     const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`;
     const response = await fetch(url);
     
@@ -17,6 +21,7 @@ const getFinnhubQuote = async (symbol) => {
         apiStatus.reset = parseInt(response.headers.get('x-ratelimit-reset'));
         apiStatus.lastUpdate = Date.now();
     }
+    // console.log(apiStatus);
 
     if (!response.ok) {
         throw new Error(`Finnhub request failed: ${response.status}`);
@@ -29,18 +34,19 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const syncRealMarketPrices = async (io) => {
     try {
+        // Get all stocks
         const stocks = await stockModel.find();
         console.log(`Syncing ${stocks.length} stocks...`);
-        
+        // Sync
         for (const stock of stocks) {
             try {
                 const data = await getFinnhubQuote(stock.symbol);
                 if (!data || data.c === 0) continue; // Skip if no data
-
+               // console.log(data);
                 const newPrice = data.c;
                 const oldPrice = stock.price;
                 const priceChange = data.d || (newPrice - oldPrice);
-
+                    // Update
                 stock.price = newPrice;
                 stock.priceChange = priceChange;
                 
@@ -49,9 +55,9 @@ export const syncRealMarketPrices = async (io) => {
                     stock.priceHistory.shift();
                 }
                 stock.priceHistory.push({ price: newPrice, timestamp: new Date() });
-                
+                // Save
                 await stock.save();
-
+                //  Emit
                 io.emit('stockPriceUpdate', {
                     stockId: stock._id,
                     symbol: stock.symbol,
@@ -73,17 +79,18 @@ export const syncRealMarketPrices = async (io) => {
     }
 };
 
-
+// Seed
 export const seedPopularStocks = async () => {
     const popularSymbols = [
         'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'TSM', 'ASML',
         'ADBE', 'AVGO', 'COST', 'PEP', 'CSCO', 'TMUS', 'TXN', 'INTC', 'QCOM', 'AMD',
         'AMAT', 'INTU', 'MU', 'HON', 'AMGN', 'SBUX', 'MDLZ', 'ISRG', 'GILD', 'BKNG'
     ];
-
+//    const popularSymbols = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX', 'TSM', 'ASML'];
     console.log('Checking for popular stocks to seed...');
     for (const symbol of popularSymbols) {
         try {
+            // Check if stock already exists
             const existing = await stockModel.findOne({ symbol });
             if (!existing) {
                 console.log(`Seeding ${symbol}...`);
@@ -96,7 +103,7 @@ export const seedPopularStocks = async () => {
                 // Profile
                 const pRes = await fetch(`https://finnhub.io/api/v1/stock/profile2?symbol=${symbol}&token=${apiKey}`);
                 const pData = await pRes.json();
-
+//                console.log(pData);
                 if (qData.c) {
                     await stockModel.create({
                         stockid: `STK-${Date.now()}-${symbol}`,
@@ -106,7 +113,20 @@ export const seedPopularStocks = async () => {
                         priceChange: qData.d || 0,
                         category: pData.finnhubIndustry || "Technology",
                         logo: pData.logo,
-                        priceHistory: [{ price: qData.c, timestamp: new Date() }]
+                        // Generate random history
+                        priceHistory: (() => {
+                            const hist = [];
+                            const now = Date.now();
+                            for (let i = 20; i >= 0; i--) {
+                                // 3% fluctuation for better visibility
+                                const fluctuation = 1 + (Math.random() * 0.06 - 0.03);
+                                hist.push({
+                                    price: Number((qData.c * fluctuation).toFixed(2)),
+                                    timestamp: new Date(now - i * 60000)
+                                });
+                            }
+                            return hist;
+                        })()
                     });
                     // Small delay to respect rate limit during seeding
                     await sleep(500);
@@ -118,8 +138,9 @@ export const seedPopularStocks = async () => {
     }
     console.log('Seeding process completed.');
 };
-
+// Start
 export const startPriceSync = (io) => {
+    // Log
     console.log('Real-time Market Sync Started...');
     // Initial Seed
     seedPopularStocks();

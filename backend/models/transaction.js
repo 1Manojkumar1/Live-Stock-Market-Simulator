@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import mongoose from "mongoose";
-
+// schema for transaction 
 const transactionSchema = new Schema(
   {
     userId: {
