@@ -16,6 +16,9 @@ import Watchlist from './pages/Watchlist';
 import Leaderboard from './pages/Leaderboard';
 import Admin from './pages/Admin';
 import Home from './pages/Home';
+import AIInsights from './pages/AIInsights';
+import PublicProfile from './pages/PublicProfile';
+import NotificationsPage from './pages/NotificationsPage';
 import Loader from './components/Loader';
 
 const AppRoutes = () => {
@@ -49,6 +52,9 @@ const AppRoutes = () => {
                         <Route path="/market" element={<Market />} />
                         <Route path="/watchlist" element={<Watchlist />} />
                         <Route path="/leaderboard" element={<Leaderboard />} />
+                        <Route path="/profile/:userId" element={<PublicProfile />} />
+                        <Route path="/notifications" element={<NotificationsPage />} />
+                        <Route path="/ai-insights" element={<AIInsights />} />
                         
                         {/* Admin Routes within Layout */}
                         <Route

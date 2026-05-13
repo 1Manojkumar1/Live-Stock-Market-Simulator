@@ -5,6 +5,8 @@ import { portfolioModel } from '../models/portfolio.js';
 import { transactionModel } from '../models/transaction.js';
 import { alertModel } from '../models/alertModel.js';
 import { Settings } from '../models/Settings.js';
+import { followModel } from '../models/follow.js';
+import { notificationModel } from '../models/notification.js';
 import { verifyToken } from '../middlewares/verifyToken.js';
 import { compare, hash } from 'bcryptjs';
 
@@ -168,6 +170,32 @@ userApp.post('/buy', verifyToken('TRADER'), async(req, res) => {
             newBalance: user.balance
         });
 
+        // SOCIAL NOTIFICATION: Notify followers
+        const io = req.app.get('io');
+        if (io) {
+            const followers = await followModel.find({ followingId: userId });
+            followers.forEach(async (f) => {
+                // Save persistent notification
+                await notificationModel.create({
+                    userId: f.followerId,
+                    title: "New Trade Followed",
+                    message: `${user.name} just purchased ${quantity} shares of ${stock.symbol} at ₹${stock.price}`,
+                    type: 'TRADE',
+                    data: { traderId: userId, stockSymbol: stock.symbol, action: 'BUY' }
+                });
+
+                io.to(f.followerId.toString()).emit('socialNotification', {
+                    type: 'TRADE',
+                    traderName: user.name,
+                    traderId: userId,
+                    action: 'BUY',
+                    stockSymbol: stock.symbol,
+                    quantity,
+                    timestamp: new Date()
+                });
+            });
+        }
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error buying stock", error: error.message });
@@ -245,6 +273,32 @@ userApp.post('/sell', verifyToken('TRADER'), async(req, res) => {
             newBalance: user.balance,
             soldAmount: saleAmount
         });
+
+        // SOCIAL NOTIFICATION: Notify followers
+        const io = req.app.get('io');
+        if (io) {
+            const followers = await followModel.find({ followingId: userId });
+            followers.forEach(async (f) => {
+                // Save persistent notification
+                await notificationModel.create({
+                    userId: f.followerId,
+                    title: "New Trade Followed",
+                    message: `${user.name} just sold ${quantity} shares of ${stock.symbol} at ₹${stock.price}`,
+                    type: 'TRADE',
+                    data: { traderId: userId, stockSymbol: stock.symbol, action: 'SELL' }
+                });
+
+                io.to(f.followerId.toString()).emit('socialNotification', {
+                    type: 'TRADE',
+                    traderName: user.name,
+                    traderId: userId,
+                    action: 'SELL',
+                    stockSymbol: stock.symbol,
+                    quantity,
+                    timestamp: new Date()
+                });
+            });
+        }
 
     } catch (error) {
         console.error("Sell error:", error);
@@ -653,5 +707,276 @@ userApp.get('/leaderboard', async (req, res) => {
 });
 
 
+
+// ========================
+// AI TRADING BEHAVIOR ANALYZER
+// ========================
+
+const analyzeUserTrades = (transactions) => {
+    if (!transactions || transactions.length < 3) {
+        return {
+            behaviorType: "Inconspicuous",
+            summary: "Not enough trading data to form a behavioral profile. Keep trading to see your AI insights!",
+            mistakes: ["Insufficient data for analysis."],
+            suggestions: ["Execute at least 5-10 trades to unlock deep behavioral insights."],
+            scores: { discipline: 50, riskManagement: 50, emotionalStability: 50 }
+        };
+    }
+
+    let discipline = 80;
+    let riskManagement = 75;
+    let emotionalStability = 70;
+    const mistakes = [];
+    const suggestions = [];
+    
+    // Analysis variables
+    const sortedTrades = [...transactions].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const recentTrades = sortedTrades.slice(-10);
+    
+    let fomoCount = 0;
+    let panicCount = 0;
+    let revengeCount = 0;
+    let overtradingCount = 0;
+
+    // Detect Overtrading (High frequency)
+    const timeDiffs = [];
+    for (let i = 1; i < recentTrades.length; i++) {
+        const diff = (new Date(recentTrades[i].createdAt) - new Date(recentTrades[i-1].createdAt)) / (1000 * 60); // minutes
+        timeDiffs.push(diff);
+        if (diff < 5) overtradingCount++;
+    }
+    
+    if (overtradingCount > 3) {
+        discipline -= 20;
+        emotionalStability -= 15;
+        mistakes.push("Trading too frequently in short bursts.");
+        suggestions.push("Wait at least 30 minutes between trades to avoid emotional noise.");
+    }
+
+    // Detect Revenge Trading (Buying immediately after a sell/loss - simplified logic)
+    for (let i = 1; i < transactions.length; i++) {
+        const prev = transactions[i-1];
+        const curr = transactions[i];
+        const timeDiff = (new Date(curr.createdAt) - new Date(prev.createdAt)) / (1000 * 60);
+        
+        if (prev.type === "SELL" && curr.type === "BUY" && timeDiff < 10) {
+            revengeCount++;
+        }
+    }
+
+    if (revengeCount > 1) {
+        emotionalStability -= 25;
+        discipline -= 15;
+        mistakes.push("Trying to 'win back' money immediately after closing a position.");
+        suggestions.push("If a trade goes against you, step away from the screen for an hour.");
+    }
+
+    // Risk Management Check (Position sizing)
+    const avgTotalAmount = transactions.reduce((sum, t) => sum + t.totalAmount, 0) / transactions.length;
+    const largeTrades = transactions.filter(t => t.totalAmount > avgTotalAmount * 2.5).length;
+    
+    if (largeTrades > 0) {
+        riskManagement -= 30;
+        mistakes.push("Allocating too much capital to single trades ('All-in' mentality).");
+        suggestions.push("Never risk more than 5-10% of your total balance on one stock.");
+    }
+
+    // Behavior Classification
+    let behaviorType = "Rational Observer";
+    let summary = "You generally maintain a steady hand and follow a consistent pattern.";
+
+    if (revengeCount > 1 || emotionalStability < 50) {
+        behaviorType = "Emotional Trader";
+        summary = "Your trading is heavily influenced by recent wins or losses, leading to impulsive entries.";
+    } else if (overtradingCount > 3) {
+        behaviorType = "Over-Active Scalper";
+        summary = "You are chasing every micro-movement, which increases your risk and mental fatigue.";
+    } else if (riskManagement < 50) {
+        behaviorType = "Aggressive Gambler";
+        summary = "You take massive positions relative to your balance, risking total wipeout for quick gains.";
+    } else if (discipline > 85 && riskManagement > 80) {
+        behaviorType = "Disciplined Strategist";
+        summary = "You trade with purpose, controlled sizes, and patient timing. Excellent work!";
+    }
+
+    return {
+        behaviorType,
+        summary,
+        mistakes: mistakes.length > 0 ? mistakes : ["No major behavioral red flags detected yet."],
+        suggestions: suggestions.length > 0 ? suggestions : ["Keep following your current plan and stay patient."],
+        scores: { 
+            discipline: Math.max(10, discipline), 
+            riskManagement: Math.max(10, riskManagement), 
+            emotionalStability: Math.max(10, emotionalStability) 
+        }
+    };
+};
+
+userApp.get('/analyze/:userId', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const transactions = await transactionModel.find({ userId }).sort({ createdAt: -1 });
+        
+        const report = analyzeUserTrades(transactions);
+        
+        res.json({
+            message: "Behavioral analysis completed",
+            report
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error analyzing behavior", error: error.message });
+    }
+});
+
+// ========================
+// SOCIAL & PUBLIC PROFILES
+// ========================
+
+// Get public profile
+userApp.get('/profile/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await userModel.findById(userId).select('name email totalProfit totalDeposited balance createdAt');
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const portfolio = await portfolioModel.find({ userId }).populate('stockId', 'stockName symbol price category');
+        
+        // Calculate sentiment (based on last 10 trades)
+        const recentTrades = await transactionModel.find({ userId }).sort({ createdAt: -1 }).limit(10);
+        const buyCount = recentTrades.filter(t => t.type === 'BUY').length;
+        const sentiment = buyCount >= 6 ? 'BULLISH' : buyCount <= 4 ? 'BEARISH' : 'NEUTRAL';
+
+        // Calculate ROI
+        const allPortfolios = await portfolioModel.find({ userId }).populate('stockId', 'price');
+        let holdingsValue = 0;
+        allPortfolios.forEach(p => { if(p.stockId) holdingsValue += p.quantity * p.stockId.price; });
+        const netWorth = user.balance + holdingsValue;
+        const roi = ((netWorth - user.totalDeposited) / user.totalDeposited) * 100;
+
+        res.json({
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                joinedAt: user.createdAt,
+                sentiment,
+                roi: Number(roi.toFixed(2))
+            },
+            holdings: portfolio.map(p => ({
+                symbol: p.stockId?.symbol,
+                name: p.stockId?.stockName,
+                quantity: p.quantity,
+                category: p.stockId?.category
+            })).filter(h => h.symbol),
+            recentActivity: recentTrades.map(t => ({
+                type: t.type,
+                price: t.price,
+                timestamp: t.createdAt
+            }))
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching profile", error: error.message });
+    }
+});
+
+// Follow a user
+userApp.post('/follow', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const { followerId, followingId } = req.body;
+        if (followerId === followingId) return res.status(400).json({ message: "You cannot follow yourself" });
+
+        await followModel.create({ followerId, followingId });
+        res.status(201).json({ message: "Followed successfully" });
+    } catch (error) {
+        if (error.code === 11000) return res.status(400).json({ message: "Already following this user" });
+        res.status(500).json({ message: "Error following user", error: error.message });
+    }
+});
+
+// Unfollow a user
+userApp.post('/unfollow', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const { followerId, followingId } = req.body;
+        await followModel.deleteOne({ followerId, followingId });
+        res.json({ message: "Unfollowed successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Error unfollowing user", error: error.message });
+    }
+});
+
+// Check follow status
+userApp.get('/follow-status', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const { followerId, followingId } = req.query;
+        const follow = await followModel.findOne({ followerId, followingId });
+        res.json({ isFollowing: !!follow });
+    } catch (error) {
+        res.status(500).json({ message: "Error checking status", error: error.message });
+    }
+});
+
+// Rescue Reset: Reset balance to 1,00,000 if balance < 5000 and portfolio is empty
+userApp.post('/rescue-reset', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const user = await userModel.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Check conditions
+        const portfolioCount = await portfolioModel.countDocuments({ userId, quantity: { $gt: 0 } });
+        if (user.balance >= 5000) {
+            return res.status(400).json({ message: "Balance is still above ₹5,000. You don't need a rescue yet!" });
+        }
+        if (portfolioCount > 0) {
+            return res.status(400).json({ message: "You still have active stock holdings. Sell them first!" });
+        }
+
+        // Perform Reset
+        const INITIAL_FUNDS = 100000;
+        user.balance = INITIAL_FUNDS;
+        user.totalDeposited = INITIAL_FUNDS;
+        user.weeklyNetWorthSnapshot = INITIAL_FUNDS;
+        user.monthlyNetWorthSnapshot = INITIAL_FUNDS;
+        user.lastWeeklyReset = new Date();
+        user.lastMonthlyReset = new Date();
+        
+        await user.save();
+
+        res.json({ 
+            message: "Rescue operation successful! Your balance is restored to ₹1,00,000.", 
+            newBalance: user.balance 
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Rescue failed", error: error.message });
+    }
+});
+
+// Notifications Endpoints
+userApp.get('/notifications/:userId', verifyToken('TRADER'), async (req, res) => {
+    try {
+        const notifications = await notificationModel.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+        res.json({ notifications });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching notifications", error: error.message });
+    }
+});
+
+userApp.delete('/notifications/:id', verifyToken('TRADER'), async (req, res) => {
+    try {
+        await notificationModel.findByIdAndDelete(req.params.id);
+        res.json({ message: "Notification deleted" });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting notification", error: error.message });
+    }
+});
+
+userApp.delete('/notifications/clear/:userId', verifyToken('TRADER'), async (req, res) => {
+    try {
+        await notificationModel.deleteMany({ userId: req.params.userId });
+        res.json({ message: "All notifications cleared" });
+    } catch (error) {
+        res.status(500).json({ message: "Error clearing notifications", error: error.message });
+    }
+});
 
 export default userApp;

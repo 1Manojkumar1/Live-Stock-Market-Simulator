@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Eye, Award, ShieldAlert, UserCog, Briefcase } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Eye, Award, ShieldAlert, UserCog, Briefcase, Brain, Bell } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 
 const Sidebar = () => {
@@ -13,6 +13,8 @@ const Sidebar = () => {
         { path: '/market', name: 'Live Market', icon: <TrendingUp size={20} /> },
         { path: '/watchlist', name: 'Watchlist', icon: <Eye size={20} /> },
         { path: '/leaderboard', name: 'Leaderboard', icon: <Award size={20} /> },
+        { path: '/notifications', name: 'Notifications', icon: <Bell size={20} /> },
+        { path: '/ai-insights', name: 'AI Insights', icon: <Brain size={20} /> },
     ];
 
     const adminLinks = [

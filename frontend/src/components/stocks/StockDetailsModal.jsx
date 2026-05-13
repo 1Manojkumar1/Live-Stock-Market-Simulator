@@ -74,6 +74,12 @@ const StockDetailsModal = ({ stock, onClose }) => {
                                 <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Category</p>
                                 <p className="text-sm font-bold text-zinc-900 uppercase">{stock.category || 'Equity'}</p>
                             </div>
+                            {stock.avgBuyPrice && (
+                                <div className="space-y-0.5">
+                                    <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest">Avg Purchase</p>
+                                    <p className="text-sm font-bold text-zinc-600">₹{stock.avgBuyPrice?.toLocaleString('en-IN')}</p>
+                                </div>
+                            )}
                             <div className="space-y-0.5">
                                 <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Market Status</p>
                                 <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Wallet, Plus} from 'lucide-react';
+import { Wallet, LifeBuoy } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -10,27 +10,25 @@ const WalletCard = () => {
     const [showAdd, setShowAdd] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const handleAddFunds = async (e) => {
-        e.preventDefault();
-        if (!amount || isNaN(amount) || amount <= 0) return;
+    const handleRescue = async () => {
+        if (!window.confirm("Are you sure? This will restore your balance to ₹1,00,000 and reset your session ROI.")) return;
 
         try {
             setLoading(true);
-            const res = await api.post('/user-api/add-funds', {
-                userId: user.id || user._id,
-                amount: Number(amount)
+            const res = await api.post('/user-api/rescue-reset', {
+                userId: user.id || user._id
             });
             
             setUser({ ...user, balance: res.data.newBalance });
-            toast.success(`₹${amount} added to your wallet!`);
-            setAmount('');
-            setShowAdd(false);
+            toast.success("Rescue mission successful! Balance restored.");
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to add funds');
+            toast.error(err.response?.data?.message || 'Rescue failed');
         } finally {
             setLoading(false);
         }
     };
+
+    const isEligibleForRescue = (user?.balance < 5000); // We'll assume frontend check for simplicity, backend enforces it strictly
 
     return (
         <div className="bg-zinc-900 text-white rounded-xl p-5 shadow-sm relative overflow-hidden group">
@@ -49,39 +47,26 @@ const WalletCard = () => {
                     ₹{user?.balance?.toLocaleString('en-IN') || '0'}
                 </h2>
 
-                {!showAdd ? (
+                {isEligibleForRescue && (
                     <button 
-                        onClick={() => setShowAdd(true)}
-                        className="flex items-center gap-2 bg-white text-zinc-900 px-4 py-2 rounded-lg font-bold text-xs hover:bg-zinc-100 transition-all active:scale-95 shadow-sm"
+                        onClick={handleRescue}
+                        disabled={loading}
+                        className="flex items-center gap-2 bg-amber-500 text-zinc-900 px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-amber-400 transition-all active:scale-95 shadow-lg shadow-amber-500/20"
                     >
-                        <Plus size={14} />
-                        Add Funds
+                        {loading ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-2 border-zinc-900/30 border-t-zinc-900"></div>
+                        ) : (
+                            <LifeBuoy size={14} />
+                        )}
+                        Request Rescue
                     </button>
-                ) : (
-                    <form onSubmit={handleAddFunds} className="flex gap-2 animate-in fade-in slide-in-from-bottom-1 duration-200">
-                        <input
-                            type="number"
-                            placeholder="Amount"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-xs focus:outline-none focus:ring-1 focus:ring-white/50 w-24"
-                            autoFocus
-                        />
-                        <button 
-                            type="submit"
-                            disabled={loading}
-                            className="bg-white text-zinc-900 px-3 py-1.5 rounded-lg font-bold text-xs hover:bg-zinc-100 disabled:opacity-50"
-                        >
-                            {loading ? '...' : 'Add'}
-                        </button>
-                        <button 
-                            type="button"
-                            onClick={() => setShowAdd(false)}
-                            className="text-white/60 hover:text-white px-1 text-xs"
-                        >
-                            Cancel
-                        </button>
-                    </form>
+                )}
+
+                {!isEligibleForRescue && (
+                    <div className="flex items-center gap-2 text-zinc-500 text-[10px] font-bold uppercase tracking-widest bg-white/5 w-fit px-3 py-1.5 rounded-lg border border-white/5">
+                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        Wallet Healthy
+                    </div>
                 )}
             </div>
         </div>

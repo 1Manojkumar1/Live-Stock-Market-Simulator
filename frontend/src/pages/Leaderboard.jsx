@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import Loader from '../components/Loader';
 import { Trophy, Medal, Crown, TrendingUp, User, Calendar, Clock, Award } from 'lucide-react';
@@ -113,15 +114,18 @@ const Leaderboard = () => {
                                             </td>
 
                                             <td className="py-4 px-6">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 bg-zinc-50 rounded flex items-center justify-center text-zinc-400 border border-zinc-200 group-hover:bg-zinc-900 group-hover:text-white group-hover:border-zinc-900 transition-colors duration-200">
+                                                <Link 
+                                                    to={`/profile/${trader.userId}`}
+                                                    className="flex items-center gap-3 group/link"
+                                                >
+                                                    <div className="w-8 h-8 bg-zinc-50 rounded flex items-center justify-center text-zinc-400 border border-zinc-200 group-hover/link:bg-zinc-900 group-hover/link:text-white group-hover/link:border-zinc-900 transition-colors duration-200">
                                                         <User size={16} />
                                                     </div>
                                                     <div>
-                                                        <p className="font-semibold text-zinc-900 leading-tight text-sm">{trader.name}</p>
+                                                        <p className="font-semibold text-zinc-900 leading-tight text-sm group-hover/link:text-zinc-600 transition-colors">{trader.name}</p>
                                                         <p className="text-[10px] text-zinc-500 mt-0.5">{trader.email}</p>
                                                     </div>
-                                                </div>
+                                                </Link>
                                             </td>
 
                                             <td className="py-4 px-6">
@@ -159,7 +163,7 @@ const Leaderboard = () => {
                     </div>
                 </div>
             )}
-            
+
             {/* HOW RANKING WORKS */}
             <div className="flex flex-col items-center mt-6">
                 <button

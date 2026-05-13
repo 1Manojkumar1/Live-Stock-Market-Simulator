@@ -70,9 +70,17 @@ const StockCard = ({ stock }) => {
                 </div>
 
                 <div className="flex items-end justify-between mb-4">
-                    <div>
-                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Price</p>
-                        <p className="text-xl font-bold text-zinc-900 leading-none">₹{stock.price?.toLocaleString('en-IN')}</p>
+                    <div className="flex gap-4">
+                        <div>
+                            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mb-0.5">Price</p>
+                            <p className="text-xl font-bold text-zinc-900 leading-none">₹{stock.price?.toLocaleString('en-IN')}</p>
+                        </div>
+                        {stock.avgBuyPrice && (
+                            <div>
+                                <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mb-0.5">Avg Buy</p>
+                                <p className="text-sm font-bold text-zinc-600 leading-none">₹{stock.avgBuyPrice?.toLocaleString('en-IN')}</p>
+                            </div>
+                        )}
                     </div>
                     
                     <div className="flex gap-2">

@@ -23,7 +23,7 @@ const userSchema = new Schema(
     },
     balance:{
       type: Number,
-      default: 10000,
+      default: 100000,
     },
     status:{
       type: String,
@@ -49,18 +49,18 @@ const userSchema = new Schema(
     // Total money ever deposited (initial + add-funds), used for all-time ROI base
     totalDeposited: {
       type: Number,
-      default: 10000,
+      default: 100000,
     },
 
     // Net Worth snapshots taken at the START of each period.
     // ROI = ((currentNetWorth - snapshotNetWorth) / snapshotNetWorth) * 100
     weeklyNetWorthSnapshot: {
       type: Number,
-      default: 10000,
+      default: 100000,
     },
     monthlyNetWorthSnapshot: {
       type: Number,
-      default: 10000,
+      default: 100000,
     },
 
     // Timestamps of the last snapshot so we know when to refresh
