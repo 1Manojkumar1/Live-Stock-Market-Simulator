@@ -8,18 +8,25 @@ import fetch from 'node-fetch';
 const stockApp = exp.Router();
 
 // Helper to generate mock historical data for new stocks
-const generateMockHistory = (basePrice, count = 20) => {
+const generateMockHistory = (basePrice, count = 20, period = '1D') => {
     const history = [];
-    const now = Date.now(); 
-    // Generate mock data
+    const now = Date.now();
+    let currentPrice = basePrice;
+    
+    // Adjust volatility based on period
+    const volatility = period === '1Y' ? 0.05 : period === '1M' ? 0.03 : period === '1W' ? 0.02 : 0.01;
+    const interval = period === '1Y' ? 86400000 : period === '1M' ? 7200000 : period === '1W' ? 3600000 : 60000;
+
     for (let i = count; i >= 0; i--) {
-        // Random fluctuation between -3% and +3% for a more visible curve 
-        // (0.03 = 3%)
-        const fluctuation = 1 + (Math.random() * 0.06 - 0.03);
-        const price = Number((basePrice * fluctuation).toFixed(2));
+        const change = (Math.random() - 0.5) * 2 * volatility;
+        currentPrice = currentPrice * (1 + change);
+        
+        if (currentPrice < basePrice * 0.5) currentPrice = basePrice * 0.5;
+        if (currentPrice > basePrice * 1.5) currentPrice = basePrice * 1.5;
+
         history.push({
-            price,
-            timestamp: new Date(now - i * 60000) // 1 minute intervals
+            price: Number(currentPrice.toFixed(2)),
+            timestamp: new Date(now - i * interval)
         });
     }
     return history;
@@ -78,20 +85,32 @@ stockApp.get("/stocks/:id", async (req, res) => {
 
 //get stock price history (for charts)
 stockApp.get("/stocks/:id/history", async (req, res) => {
-  try { 
-    //get stock
-    const stock = await stockModel.findById(req.params.id).select("stockName symbol priceHistory");
+  try {
+    const { period = '1D' } = req.query;
+    const stock = await stockModel.findById(req.params.id).select("stockName symbol priceHistory price");
+    
     if (!stock) {
       return res.status(404).json({ message: "Stock not found" });
     }
+
+    let history = stock.priceHistory;
+
+    // Filter or generate based on period
+    if (period === '1W') {
+      history = generateMockHistory(stock.price, 100, '1W');
+    } else if (period === '1M') {
+      history = generateMockHistory(stock.price, 200, '1M');
+    } else if (period === '1Y') {
+      history = generateMockHistory(stock.price, 365, '1Y');
+    }
+
     res.json({
       message: "Price history fetched successfully",
       stockName: stock.stockName,
       symbol: stock.symbol,
-      priceHistory: stock.priceHistory
+      priceHistory: history
     });
-  } catch (error) { 
-    //error
+  } catch (error) {
     res.status(500).json({ message: "Error fetching price history", error: error.message });
   }
 });

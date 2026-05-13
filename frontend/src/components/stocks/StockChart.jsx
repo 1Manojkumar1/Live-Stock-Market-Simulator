@@ -46,7 +46,13 @@ const StockChart = ({ stockId, initialHistory = [], compact = false }) => {
     useEffect(() => {
         if (initialHistory && initialHistory.length > 0) {
             setChartData({
-                labels: initialHistory.map(h => new Date(h.timestamp).toLocaleTimeString()),
+                labels: initialHistory.map(h => {
+                    const date = new Date(h.timestamp);
+                    // Use date for longer histories, time for short ones
+                    return initialHistory.length > 50 
+                        ? date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+                        : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                }),
                 datasets: [{
                     label: 'Price',
                     data: initialHistory.map(h => h.price),
