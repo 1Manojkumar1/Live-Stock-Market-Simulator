@@ -812,7 +812,7 @@ const analyzeUserTrades = (transactions) => {
     };
 };
 
-userApp.get('/analyze/:userId', verifyToken('TRADER'), async (req, res) => {
+userApp.get('/analyze/:userId', verifyToken('TRADER', 'ADMIN'), async (req, res) => {
     try {
         const { userId } = req.params;
         const transactions = await transactionModel.find({ userId }).sort({ createdAt: -1 });
@@ -842,7 +842,7 @@ userApp.get('/profile/:userId', async (req, res) => {
         const portfolio = await portfolioModel.find({ userId }).populate('stockId', 'stockName symbol price category');
         
         // Calculate sentiment (based on last 10 trades)
-        const recentTrades = await transactionModel.find({ userId }).sort({ createdAt: -1 }).limit(10);
+        const recentTrades = await transactionModel.find({ userId }).sort({ createdAt: -1 }).limit(10).populate('stockId', 'symbol stockName');
         const buyCount = recentTrades.filter(t => t.type === 'BUY').length;
         const sentiment = buyCount >= 6 ? 'BULLISH' : buyCount <= 4 ? 'BEARISH' : 'NEUTRAL';
 
@@ -870,6 +870,8 @@ userApp.get('/profile/:userId', async (req, res) => {
             })).filter(h => h.symbol),
             recentActivity: recentTrades.map(t => ({
                 type: t.type,
+                symbol: t.stockId?.symbol,
+                name: t.stockId?.stockName,
                 price: t.price,
                 timestamp: t.createdAt
             }))
@@ -905,7 +907,7 @@ userApp.post('/unfollow', verifyToken('TRADER'), async (req, res) => {
 });
 
 // Check follow status
-userApp.get('/follow-status', verifyToken('TRADER'), async (req, res) => {
+userApp.get('/follow-status', verifyToken('TRADER', 'ADMIN'), async (req, res) => {
     try {
         const { followerId, followingId } = req.query;
         const follow = await followModel.findOne({ followerId, followingId });
@@ -952,7 +954,7 @@ userApp.post('/rescue-reset', verifyToken('TRADER'), async (req, res) => {
 });
 
 // Notifications Endpoints
-userApp.get('/notifications/:userId', verifyToken('TRADER'), async (req, res) => {
+userApp.get('/notifications/:userId', verifyToken('TRADER', 'ADMIN'), async (req, res) => {
     try {
         const notifications = await notificationModel.find({ userId: req.params.userId }).sort({ createdAt: -1 });
         res.json({ notifications });

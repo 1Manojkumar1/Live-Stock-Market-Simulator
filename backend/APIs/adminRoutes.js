@@ -15,7 +15,7 @@ adminApp.get('/dashboard',verifyToken('ADMIN'),async (req, res) => {
     const loggedOutUsers = await userModel.countDocuments({ isLoggedIn: false });
 //get all users
     const users = await userModel.find()
-      .select("name email isLoggedIn lastLogin status balance");
+      .select("_id name email isLoggedIn lastLogin status balance");
     res.json({
       message: "Admin Dashboard",
       stats: {

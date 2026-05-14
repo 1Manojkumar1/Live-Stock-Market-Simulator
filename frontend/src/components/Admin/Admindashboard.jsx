@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
-import {Users, UserCheck, UserMinus, UserX, Activity, Search } from 'lucide-react';
+import {Users, UserCheck, UserMinus, UserX, Activity, Search, ExternalLink } from 'lucide-react';
 import Loader from '../Loader';
 
 const StatCard = ({ title, value, icon: Icon, color, isActive, onClick }) => (
@@ -174,12 +175,15 @@ function AdminDashboard() {
                 filteredUsers.map((u) => (
                   <tr key={u._id} className="hover:bg-zinc-50/50 transition-colors group text-sm">
                     <td className="py-3.5 px-5">
-                      <div className="flex items-center gap-3">
+                      <Link to={`/profile/${u._id}`} className="flex items-center gap-3 group/name hover:opacity-80 transition-opacity">
                         <div className={`w-8 h-8 rounded flex items-center justify-center text-white font-bold text-xs ${u.isLoggedIn ? 'bg-green-500' : 'bg-zinc-300'}`}>
                           {u.name.charAt(0)}
                         </div>
-                        <span className="font-medium text-zinc-900">{u.name}</span>
-                      </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-zinc-900 border-b border-transparent group-hover/name:border-zinc-900 transition-all">{u.name}</span>
+                          <ExternalLink size={12} className="text-zinc-300 group-hover/name:text-zinc-900 transition-colors" />
+                        </div>
+                      </Link>
                     </td>
                     <td className="py-3.5 px-5">
                       <span className="text-zinc-500">{u.email}</span>

@@ -65,12 +65,6 @@ const PublicProfile = () => {
                     <div>
                         <div className="flex items-center gap-3 mb-1">
                             <h1 className="text-2xl font-black text-zinc-900">{user.name}</h1>
-                            <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${
-                                user.sentiment === 'BULLISH' ? 'bg-emerald-50 text-emerald-600' : 
-                                user.sentiment === 'BEARISH' ? 'bg-rose-50 text-rose-600' : 'bg-zinc-100 text-zinc-500'
-                            }`}>
-                                {user.sentiment}
-                            </span>
                         </div>
                         <div className="flex items-center gap-4 text-zinc-400 text-xs font-bold uppercase tracking-widest">
                             <span className="flex items-center gap-1.5"><Calendar size={14} /> Joined {new Date(user.joinedAt).toLocaleDateString()}</span>
@@ -78,7 +72,7 @@ const PublicProfile = () => {
                     </div>
                 </div>
 
-                {currentUser && currentUser._id !== userId && (
+                {currentUser && currentUser._id !== userId && currentUser.role !== 'ADMIN' && (
                     <button 
                         onClick={handleFollow}
                         className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95 ${
@@ -163,8 +157,10 @@ const PublicProfile = () => {
                                         {a.type === 'BUY' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
                                     </div>
                                     <div>
-                                        <p className="text-xs font-black text-zinc-900">{a.type === 'BUY' ? 'Purchased Asset' : 'Liquidated Position'}</p>
-                                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{new Date(a.timestamp).toLocaleDateString()}</p>
+                                        <p className="text-xs font-black text-zinc-900">
+                                            {a.type === 'BUY' ? 'Purchased' : 'Sold'} {a.symbol}
+                                        </p>
+                                        <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">{a.name} • {new Date(a.timestamp).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                                 <p className="text-xs font-black text-zinc-900">₹{a.price}</p>
