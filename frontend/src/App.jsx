@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
 
 import ProtectedRoute from './components/ProtectedRoute';
-import Layout from './components/layout/Layout';
+import Layout from './components/Layout/Layout';
 
 // Pages
 import Login from './pages/Login';
