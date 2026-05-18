@@ -61,7 +61,12 @@ authApp.post('/login',async(req,res,next)=>{
             process.env.SECRET_KEY,
             {expiresIn:'24h'}
         )
-        res.cookie('token',token,{httpOnly:true})
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
 
         //update login tracking
         user.isLoggedIn = true
@@ -100,7 +105,12 @@ authApp.get('/logout',async(req,res,next)=>{
             console.log(e) 
         }
 
-        res.clearCookie('token')
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax'
+        });
         return res.status(200).json({message:'Logout successful'})
     } 
     //catch if token is invalid
