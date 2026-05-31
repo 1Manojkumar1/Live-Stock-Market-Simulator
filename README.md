@@ -119,8 +119,8 @@ live-stock-market-simulator/
 ##  Sub-Folder Documentation
 
 For more granular details on how the backend or frontend is structured and operated, please check out their respective README files:
-- [Backend README](file:///c:/group%20project/live-stock-market-simulator/backend/README.md)
-- [Frontend README](file:///c:/group%20project/live-stock-market-simulator/frontend/README.md)
+- [Backend README](https://github.com/1Manojkumar1/Live-Stock-Market-Simulator/blob/main/backend/README.md)
+- [Frontend README](https://github.com/1Manojkumar1/Live-Stock-Market-Simulator/blob/main/frontend/README.md)
 
 ---
 
