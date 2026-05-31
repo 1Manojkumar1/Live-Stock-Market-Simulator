@@ -124,6 +124,3 @@ For more granular details on how the backend or frontend is structured and opera
 
 ---
 
-##  License
-
-This project is licensed under the **ISC License**.
