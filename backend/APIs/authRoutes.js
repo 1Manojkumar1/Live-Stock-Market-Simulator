@@ -12,7 +12,7 @@ authApp.use(exp.json())
 //route for registration
 authApp.post('/register',async(req,res,next)=>{
     try{
-        let allowedRoles=['ADMIN','TRADER']
+        let allowedRoles=['TRADER']
         const {name,email,password,role}=req.body
         //check if role is valid
         if(!allowedRoles.includes(role)){
